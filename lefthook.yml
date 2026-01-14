@@ -1,23 +1,30 @@
 pre-push:
   commands:
-    check:
+    lint:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {push_files}
-      stage_fixed: true
+      run: npx biome lint --no-errors-on-unmatched --files-ignore-unknown=true {push_files}
+    format-check:
+      glob: "*.{astro,js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: npx prettier --check {push_files}
     protect-main:
       run: |
         branch=$(git rev-parse --abbrev-ref HEAD)
         if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
-          echo "Direct pushes to $branch are not allowed! Please create a PR instead" >&2
-          echo "To override (emergency only): git push --no-verify" >&2
+          echo "Direct pushes to $branch are not allowed! Please create a PR instead"
+          echo "To override (emergency only): git push --no-verify"
           exit 1
         fi
+
 pre-commit:
   commands:
-    check:
+    lint:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      run: npx biome lint --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    format:
+      glob: "*.{astro,js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: npx prettier --write {staged_files}
       stage_fixed: true
       fail_text: |
-        Biome checks failed!
+        Linting or formatting failed!
         To override (emergency only): git commit -n
