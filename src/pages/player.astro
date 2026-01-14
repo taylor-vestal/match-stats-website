@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const id = Astro.url.searchParams.get("id");
+---
+
+<Layout>
+  <main>
+    <h1>Player</h1>
+    {id ? <p>Viewing player {id}</p> : <p>No player ID provided.</p>}
+    <a href="/">Back to Home</a>
+  </main>
+</Layout>

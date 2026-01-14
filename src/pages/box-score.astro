@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const id = Astro.url.searchParams.get("id");
+---
+
+<Layout>
+  <main>
+    <h1>Box Score</h1>
+    {id ? <p>Viewing box score {id}</p> : <p>No box score ID provided.</p>}
+    <a href="/">Back to Home</a>
+  </main>
+</Layout>

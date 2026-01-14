@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const url = new URL(Astro.request.url);
+const player1 = url.searchParams.get("player1");
+const player2 = url.searchParams.get("player2");
+---
+
+<Layout>
+  <main>
+    <h1>Head to Head</h1>
+    {
+      player1 && player2 ? (
+        <p>
+          Comparing Player {player1} vs Player {player2}
+        </p>
+      ) : (
+        <p>Select two players to compare.</p>
+      )
+    }
+    <a href="/">Back to Home</a>
+  </main>
+</Layout>
