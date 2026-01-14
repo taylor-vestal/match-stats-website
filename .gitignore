@@ -19,3 +19,11 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# test db file
+*.sqlite3
+
+# env files
+.env
+.env.development
+.env.production
