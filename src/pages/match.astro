@@ -6,8 +6,8 @@ const id = Astro.url.searchParams.get("id");
 
 <Layout>
   <main>
-    <h1>Box Score</h1>
-    {id ? <p>Viewing box score {id}</p> : <p>No box score ID provided.</p>}
-    <a href="/">Back to Home</a>
+    <h1>Match</h1>
+    {id ? <p>Viewing match {id}</p> : <p>No match ID provided.</p>}
+    <a href="/matches">Back to Matches</a>
   </main>
 </Layout>

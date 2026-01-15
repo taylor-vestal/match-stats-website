@@ -8,6 +8,6 @@ const id = Astro.url.searchParams.get("id");
   <main>
     <h1>Player</h1>
     {id ? <p>Viewing player {id}</p> : <p>No player ID provided.</p>}
-    <a href="/">Back to Home</a>
+    <a href="/players">Back to Players</a>
   </main>
 </Layout>
