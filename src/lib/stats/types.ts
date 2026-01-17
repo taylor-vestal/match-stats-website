@@ -1,4 +1,4 @@
-import type { statsDb } from "@/lib/db/stats-db";
+import type { statsDb } from "@/lib/stats-db";
 
 export interface StatisticalFilters {
   eventIds?: string[];
