@@ -9,13 +9,13 @@ export interface StatisticalFilters {
 }
 
 export interface StatisticalContext {
-  filters: StatisticalFilters;
-  playerId?: string; // If set, evaluate for single player
+  filters?: StatisticalFilters;
+  playerId?: number; // If set, evaluate for single player
 }
 
 export interface NumericStatisticResult {
   value: number;
-  playerId: string;
+  playerId: number;
   toString(): string;
 }
 

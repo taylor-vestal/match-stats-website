@@ -1,0 +1,36 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout>
+  <main>
+    <h1>Test page</h1>
+    You found the test page! Use this to test the results of queries
+
+    <div id="buttonContainer"></div>
+    <div id="results"></div>
+  </main>
+</Layout>
+<script>
+  import { allStats } from "@/lib/stats/registry";
+  import { dbManager } from "@/lib/db/database";
+
+  const container = document.querySelector("div#buttonContainer");
+  const results = document.querySelector("div#results");
+
+  allStats.forEach((stat) => {
+    const button = document.createElement("button");
+    button.innerText = stat.name;
+    const names = dbManager.getPlayerNamesMap();
+    button.addEventListener("click", () => {
+      if (results === null) return;
+      results.innerHTML = "";
+      stat.evaluate(dbManager, {}).map((row) => {
+        const div = document.createElement("div");
+        div.innerText = `${names.get(row.playerId)}: ${row.value}`;
+        results.appendChild(div);
+      });
+    });
+    container?.appendChild(button);
+  });
+</script>

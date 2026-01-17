@@ -12,16 +12,16 @@ export function buildWhere(
 ): string {
   const conditions = [...baseConditions];
 
-  if (ctx.filters.eventIds?.length) {
+  if (ctx.filters?.eventIds?.length) {
     const ids = ctx.filters.eventIds.map((id) => `'${id}'`).join(",");
     conditions.push(
       `event_round_id IN (SELECT event_round_id FROM event_rounds WHERE event_id IN (${ids}))`
     );
   }
-  if (ctx.filters.startDate) {
+  if (ctx.filters?.startDate) {
     conditions.push(`match_timestamp >= '${ctx.filters.startDate}'`);
   }
-  if (ctx.filters.endDate) {
+  if (ctx.filters?.endDate) {
     conditions.push(`match_timestamp <= '${ctx.filters.endDate}'`);
   }
   if (ctx.playerId) {

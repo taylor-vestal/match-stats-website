@@ -10,9 +10,10 @@ class DatabaseManager {
 
   private constructor() {}
 
-  static getInstance(): DatabaseManager {
+  static async getInstance(): Promise<DatabaseManager> {
     if (!DatabaseManager.instance) {
       DatabaseManager.instance = new DatabaseManager();
+      await DatabaseManager.instance.initialize();
     }
     return DatabaseManager.instance;
   }
@@ -83,7 +84,20 @@ class DatabaseManager {
       toString: () => r.value.toString(),
     }));
   }
+
+  getPlayerNamesMap(): Map<number, string> {
+    if (!this.db) {
+      throw new Error("Database not initialized. Call initialize() first.");
+    }
+    const rows = this.db.exec({
+      sql: "SELECT player_id, username FROM players",
+      returnValue: "resultRows",
+      rowMode: "object",
+    }) as { player_id: number; username: string }[];
+
+    return new Map(rows.map((r) => [r.player_id, r.username]));
+  }
 }
 
-export const dbManager = DatabaseManager.getInstance();
+export const dbManager = await DatabaseManager.getInstance();
 export type { Database };

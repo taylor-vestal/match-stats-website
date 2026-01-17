@@ -3,7 +3,7 @@
 import solidJs from "@astrojs/solid-js";
 import { defineConfig } from "astro/config";
 
-import tailwindcss from "@tailwindcss/vite";
+import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,8 +13,7 @@ export default defineConfig({
       exclude: ["@sqlite.org/sqlite-wasm"],
     },
 
-    // @ts-expect-error
     // https://github.com/withastro/astro/issues/14030
-    plugins: [tailwindcss()],
+    plugins: [tailwind({ applyBaseStyles: false })],
   },
 });
