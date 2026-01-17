@@ -1,5 +1,5 @@
-import type { NumericStatistic } from "./types";
-import { offenseStats } from "./offense";
+import type { NumericStatistic } from "@/lib/stats/types";
+import { offenseStats } from "@/lib/stats/offense";
 
 export const allStats: NumericStatistic[] = [...offenseStats];
 

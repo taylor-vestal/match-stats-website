@@ -1,4 +1,4 @@
-import type { StatisticalContext } from "./types";
+import type { StatisticalContext } from "@/lib/stats/types";
 
 /**
  * Build WHERE clause from statistical context.

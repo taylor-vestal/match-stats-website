@@ -1,5 +1,5 @@
 import sqlite3InitModule, { type Sqlite3Static } from "@sqlite.org/sqlite-wasm";
-import type { NumericStatisticResult } from "../stats/types";
+import type { NumericStatisticResult } from "@/lib/stats/types";
 
 type Database = InstanceType<Sqlite3Static["oo1"]["DB"]>;
 

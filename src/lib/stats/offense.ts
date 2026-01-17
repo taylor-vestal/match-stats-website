@@ -1,10 +1,10 @@
-import type { statsDb } from "../db/stats-db";
+import type { statsDb } from "@/lib/db/stats-db";
 import type {
   NumericStatistic,
   NumericStatisticResult,
   StatisticalContext,
-} from "./types";
-import { buildWhere } from "./utils";
+} from "@/lib/stats/types";
+import { buildWhere } from "@/lib/stats/utils";
 
 const matchWins: NumericStatistic = {
   id: "match_wins",
