@@ -12,8 +12,8 @@ import Layout from "@/layouts/Layout.astro";
   </main>
 </Layout>
 <script>
-  import { allStats } from "@/lib/stats/registry";
-  import { dbManager } from "@/lib/db/database";
+  import { allStats } from "@/lib/stats";
+  import { statsDb } from "@/lib/db/stats-db";
 
   const container = document.querySelector("div#buttonContainer");
   const results = document.querySelector("div#results");
@@ -21,11 +21,11 @@ import Layout from "@/layouts/Layout.astro";
   allStats.forEach((stat) => {
     const button = document.createElement("button");
     button.innerText = stat.name;
-    const names = dbManager.getPlayerNamesMap();
+    const names = statsDb.playerNames();
     button.addEventListener("click", () => {
       if (results === null) return;
       results.innerHTML = "";
-      stat.evaluate(dbManager, {}).map((row) => {
+      stat.evaluate(statsDb, {}).map((row) => {
         const div = document.createElement("div");
         div.innerText = `${names.get(row.playerId)}: ${row.value}`;
         results.appendChild(div);

@@ -1,4 +1,4 @@
-import type { dbManager } from "../db/database";
+import type { statsDb } from "../db/stats-db";
 
 export interface StatisticalFilters {
   eventIds?: string[];
@@ -28,7 +28,7 @@ export interface NumericStatistic {
   description: string;
   /** Evaluate this statistic and return results */
   evaluate(
-    db: typeof dbManager,
+    db: typeof statsDb,
     ctx: StatisticalContext
   ): NumericStatisticResult[];
 }

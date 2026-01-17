@@ -1,4 +1,4 @@
-import type { dbManager } from "../db/database";
+import type { statsDb } from "../db/stats-db";
 import type {
   NumericStatistic,
   NumericStatisticResult,
@@ -12,7 +12,7 @@ const matchWins: NumericStatistic = {
   description: "Total number of matches won",
 
   evaluate(
-    db: typeof dbManager,
+    db: typeof statsDb,
     ctx: StatisticalContext
   ): NumericStatisticResult[] {
     const where = buildWhere(ctx, ["mr.player_id = m.match_winner_player_id"]);
@@ -33,7 +33,7 @@ const gameWins: NumericStatistic = {
   description: "Total number of games won",
 
   evaluate(
-    db: typeof dbManager,
+    db: typeof statsDb,
     ctx: StatisticalContext
   ): NumericStatisticResult[] {
     const where = buildWhere(ctx, ["gr.player_id = g.game_winner_player_id"]);
@@ -54,7 +54,7 @@ const totalMatches: NumericStatistic = {
   description: "Total number of matches played",
 
   evaluate(
-    db: typeof dbManager,
+    db: typeof statsDb,
     ctx: StatisticalContext
   ): NumericStatisticResult[] {
     const where = buildWhere(ctx);
