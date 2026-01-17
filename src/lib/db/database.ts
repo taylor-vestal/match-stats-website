@@ -1,4 +1,5 @@
 import sqlite3InitModule, { type Sqlite3Static } from "@sqlite.org/sqlite-wasm";
+import type { NumericStatisticResult } from "../stats/types";
 
 type Database = InstanceType<Sqlite3Static["oo1"]["DB"]>;
 
@@ -64,6 +65,23 @@ class DatabaseManager {
       throw new Error("Database not initialized. Call initialize() first.");
     }
     return this.db;
+  }
+
+  evaluateQuery(sql: string): NumericStatisticResult[] {
+    if (!this.db) {
+      throw new Error("Database not initialized. Call initialize() first.");
+    }
+    const rows = this.db.exec({
+      sql,
+      returnValue: "resultRows",
+      rowMode: "object",
+    }) as { player_id: string; value: number }[];
+
+    return rows.map((r) => ({
+      value: r.value,
+      playerId: r.player_id,
+      toString: () => r.value.toString(),
+    }));
   }
 }
 
