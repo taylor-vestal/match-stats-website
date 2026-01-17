@@ -10,7 +10,7 @@ export interface StatisticalFilters {
 
 export interface StatisticalContext {
   filters?: StatisticalFilters;
-  playerId?: number; // If set, evaluate for single player
+  playerId?: number;
 }
 
 export interface NumericStatisticResult {
@@ -20,13 +20,9 @@ export interface NumericStatisticResult {
 }
 
 export interface NumericStatistic {
-  /** Unique identifier (e.g., "total_wins") */
   id: string;
-  /** Display name (e.g., "Total Wins") */
   name: string;
-  /** Description of what this stat measures */
   description: string;
-  /** Evaluate this statistic and return results */
   evaluate(
     db: typeof statsDb,
     ctx: StatisticalContext
