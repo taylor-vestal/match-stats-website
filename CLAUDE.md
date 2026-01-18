@@ -37,8 +37,7 @@ src/
 ├── layouts/           # Page layouts
 │   └── Layout.astro
 ├── lib/
-│   ├── db/            # Database layer
-│   │   └── stats-db.ts
+│   ├── stats-db.ts    # Database singleton
 │   └── stats/         # Statistics system
 │       ├── index.ts   # Registry and exports
 │       ├── types.ts   # NumericStatistic, StatisticalContext
@@ -73,7 +72,7 @@ All dynamic data is passed via query parameters (static site compatible).
 The site uses an in-browser SQLite database via `@sqlite.org/sqlite-wasm`.
 
 ```typescript
-import { statsDb } from "@/lib/db/stats-db";
+import { statsDb } from "@/lib/stats-db";
 
 // All methods are synchronous after module import
 const results = statsDb.query("SELECT ...");
@@ -92,7 +91,7 @@ const name = statsDb.playerName(123);
 Statistics are defined as objects implementing `NumericStatistic`:
 
 ```typescript
-import { statsDb } from "@/lib/db/stats-db";
+import { statsDb } from "@/lib/stats-db";
 import { allStats, getStat } from "@/lib/stats";
 import type { StatisticalContext } from "@/lib/stats/types";
 
@@ -168,5 +167,5 @@ Use `@/` to import from `src/`:
 
 ```tsx
 import { Button } from "@/components/ui/button";
-import { statsDb } from "@/lib/db/stats-db";
+import { statsDb } from "@/lib/stats-db";
 ```

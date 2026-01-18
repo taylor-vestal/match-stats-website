@@ -15,7 +15,7 @@ export interface StatisticalContext {
 
 export interface NumericStatisticResult {
   value: number;
-  playerId: number;
+  playerId: string;
   toString(): string;
 }
 
