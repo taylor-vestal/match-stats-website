@@ -135,7 +135,7 @@ await player.getAvatarUrl(); // "/img/avatar/123.png" or null
 Avatars are downloaded from a CSV file (exported from Google Sheets):
 
 ```bash
-npm run download-avatars "Match Stats Player Profiles - Player Info URLs.csv"
+npm run download-avatars "data.csv"
 ```
 
 This script:
