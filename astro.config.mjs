@@ -7,13 +7,18 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [solidJs({ devtools: true })],
+  integrations: [
+    solidJs({ devtools: true }),
+    tailwind({ applyBaseStyles: false }),
+  ],
   vite: {
     optimizeDeps: {
       exclude: ["@sqlite.org/sqlite-wasm"],
     },
-
-    // https://github.com/withastro/astro/issues/14030
-    plugins: [tailwind({ applyBaseStyles: false })],
+    ssr: {
+      // Don't try to bundle sqlite-wasm for SSR - it's browser-only
+      noExternal: [],
+      external: ["@sqlite.org/sqlite-wasm"],
+    },
   },
 });

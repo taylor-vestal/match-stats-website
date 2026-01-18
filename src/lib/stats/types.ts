@@ -1,4 +1,4 @@
-import type { statsDb } from "@/lib/db/stats-db";
+import type { statsDb } from "@/lib/stats-db";
 
 export interface StatisticalFilters {
   eventIds?: string[];
@@ -15,7 +15,7 @@ export interface StatisticalContext {
 
 export interface NumericStatisticResult {
   value: number;
-  playerId: number;
+  playerId: string;
   toString(): string;
 }
 

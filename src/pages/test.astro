@@ -13,7 +13,8 @@ import Layout from "@/layouts/Layout.astro";
 </Layout>
 <script>
   import { allStats } from "@/lib/stats";
-  import { statsDb } from "@/lib/db/stats-db";
+  import { statsDb } from "@/lib/stats-db";
+  import { Player } from "@/lib/player";
 
   const container = document.querySelector("div#buttonContainer");
   const results = document.querySelector("div#results");
@@ -21,15 +22,37 @@ import Layout from "@/layouts/Layout.astro";
   allStats.forEach((stat) => {
     const button = document.createElement("button");
     button.innerText = stat.name;
-    const names = statsDb.playerNames();
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       if (results === null) return;
       results.innerHTML = "";
-      stat.evaluate(statsDb, {}).map((row) => {
+
+      for (const row of stat.evaluate(statsDb, {})) {
+        const player = new Player(row.playerId);
+
         const div = document.createElement("div");
-        div.innerText = `${names.get(row.playerId)}: ${row.value}`;
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.gap = "8px";
+        div.style.marginBottom = "4px";
+
+        const avatarUrl = await player.getAvatarUrl();
+        if (avatarUrl) {
+          const img = document.createElement("img");
+          img.src = avatarUrl;
+          img.alt = "";
+          img.style.width = "32px";
+          img.style.height = "32px";
+          img.style.borderRadius = "50%";
+          img.style.objectFit = "cover";
+          div.appendChild(img);
+        }
+
+        const text = document.createElement("span");
+        text.innerText = `${player.getName()}: ${row.value}`;
+
+        div.appendChild(text);
         results.appendChild(div);
-      });
+      }
     });
     container?.appendChild(button);
   });
