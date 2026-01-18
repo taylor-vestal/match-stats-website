@@ -1,46 +1,76 @@
-# match-stats-website
+# Match Stats Website
 
-```sh
-npm create astro@latest -- --template basics
+A static site for displaying match statistics for competitive Classic Tetris. Built with Astro and SolidJS.
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd match-stats-website
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+2. Install dependencies:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```bash
+npm install
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Development
 
-## 🧞 Commands
+Start the development server:
 
-All commands are run from the root of the project, from a terminal:
+```bash
+npm run dev
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+The site will be available at `http://localhost:4321`.
 
-## 👀 Want to learn more?
+## Database Setup
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The site requires a SQLite database file to display match statistics.
+
+1. Obtain the database file (e.g. `nestris-db.sqlite3`)
+2. Place it in the `public/` directory:
+
+```
+public/nestris-db.sqlite3
+```
+
+You will also need to create a file named `.env.development` containing the file name (not the full path) of the database file. Look at `.env.development.example` to see how it works.
+
+**Note:** The database must use DELETE journal mode (not WAL). If needed, convert it with:
+
+```bash
+sqlite3 nestris-db.sqlite3 "PRAGMA journal_mode=DELETE; VACUUM;"
+```
+
+## Avatar Setup
+
+Player avatars are downloaded from a CSV file containing player profile URLs.
+
+1. Obtain the CSV file (exported from the Player Profiles Google Sheet)
+2. Run the download script:
+
+```bash
+npm run download-avatars "Match Stats Player Profiles - Player Info URLs.csv"
+```
+
+This will:
+- Download avatar images to `public/img/avatar/`
+- Generate a manifest file at `public/img/avatar/manifest.json`
+
+## Build
+
+Build the site for production:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
