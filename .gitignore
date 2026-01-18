@@ -20,8 +20,12 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# test db file
-*.sqlite3
+# db file
+public/*.sqlite3
+
+# player avatars
+public/img
+/*.csv
 
 # env files
 .env

@@ -11,6 +11,6 @@ class Player {
     return statsDb.playerNames().get(this.id);
   }
   getAvatarUrl(): string {
-    return `/img/avatar/${this.id}.png`;
+    return `/img/avatar/${this.id}`;
   }
 }
