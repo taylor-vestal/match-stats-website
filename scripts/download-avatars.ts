@@ -40,6 +40,7 @@ const allPlayers = db
 }[];
 const allPlayerIds = new Set(allPlayers.map((p) => p.player_id));
 const processedPlayerIds = new Set<number>();
+const avatarExtensions: Record<number, string> = {};
 
 // 3. Clean output directory
 const outputDir = "public/img/avatar";
@@ -59,12 +60,17 @@ for (const row of records) {
     continue;
   }
 
+  // Extract extension from URL
+  const ext =
+    photoUrl.match(/\.(png|jpe?g|gif|webp)$/i)?.[0]?.toLowerCase() || ".png";
+
   const response = await fetch(photoUrl);
   const buffer = Buffer.from(await response.arrayBuffer());
 
-  writeFileSync(`${outputDir}/${player.player_id}`, buffer);
+  writeFileSync(`${outputDir}/${player.player_id}${ext}`, buffer);
   processedPlayerIds.add(player.player_id);
-  console.log(`Saved avatar for ${username} (ID: ${player.player_id})`);
+  avatarExtensions[player.player_id] = ext;
+  console.log(`Saved avatar for ${username} (ID: ${player.player_id}${ext})`);
 }
 
 // Report players without avatars
@@ -78,6 +84,15 @@ if (missingPlayerIds.length > 0) {
     console.warn(`  - ${player?.username} (ID: ${id})`);
   }
 }
+
+// Write manifest file
+writeFileSync(
+  `${outputDir}/manifest.json`,
+  JSON.stringify(avatarExtensions, null, 2)
+);
+console.log(
+  `Wrote manifest with ${Object.keys(avatarExtensions).length} entries`
+);
 
 db.close();
 console.log(
