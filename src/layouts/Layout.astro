@@ -1,3 +1,10 @@
+---
+import "@/styles/global.css";
+import DevPanel from "@/components/DevPanel.astro";
+
+const isDev = import.meta.env.DEV;
+---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -9,6 +16,7 @@
   </head>
   <body>
     <slot />
+    {isDev && <DevPanel />}
   </body>
 </html>
 

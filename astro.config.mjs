@@ -7,6 +7,7 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
+  output: "static",
   integrations: [
     solidJs({ devtools: true }),
     tailwind({ applyBaseStyles: false }),
@@ -17,7 +18,6 @@ export default defineConfig({
     },
     ssr: {
       // Don't try to bundle sqlite-wasm for SSR - it's browser-only
-      noExternal: [],
       external: ["@sqlite.org/sqlite-wasm"],
     },
   },
