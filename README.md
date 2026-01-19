@@ -58,6 +58,7 @@ npm run download-avatars "Match Stats Player Profiles - Player Info URLs.csv"
 ```
 
 This will:
+
 - Download avatar images to `public/img/avatar/`
 - Generate a manifest file at `public/img/avatar/manifest.json`
 

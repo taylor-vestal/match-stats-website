@@ -1,0 +1,44 @@
+<div
+  id="dev-panel"
+  class:list={[
+    "fixed bottom-4 right-4 z-50",
+    "border border-border rounded",
+    "text-center text-lg",
+  ]}
+>
+  <p class="p-2">Dev panel</p>
+  <label
+    class:list={["flex gap-2 bg-card", "px-3 py-2 text-sm", "cursor-pointer"]}
+  >
+    <input
+      type="checkbox"
+      id="debug-ui-borders-toggle"
+      class="cursor-pointer"
+    />
+    Debug
+  </label>
+</div>
+
+<style is:global>
+  .debug-ui-borders * {
+    outline: 1px solid red !important;
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById(
+    "debug-ui-borders-toggle"
+  ) as HTMLInputElement;
+  if (toggle) {
+    document.documentElement.classList.toggle(
+      "debug-ui-borders",
+      toggle.checked
+    );
+    toggle.addEventListener("change", () => {
+      document.documentElement.classList.toggle(
+        "debug-ui-borders",
+        toggle.checked
+      );
+    });
+  }
+</script>
