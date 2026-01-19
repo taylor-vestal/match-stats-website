@@ -1,22 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
-const player1 = Astro.url.searchParams.get("player1");
-const player2 = Astro.url.searchParams.get("player2");
+import HeadToHead from "@/components/HeadToHead";
 ---
 
-<Layout>
-  <main>
-    <h1>Compare</h1>
-    {
-      player1 && player2 ? (
-        <p>
-          Comparing Player {player1} vs Player {player2}
-        </p>
-      ) : (
-        <p>Select two players to compare.</p>
-      )
-    }
-    <a href="/">Back to Home</a>
+<Layout minWidth="600px">
+  <main class="min-h-screen bg-background">
+    <HeadToHead client:load />
+    <div class="container mx-auto px-4 py-4 text-center">
+      <a href="/" class="text-primary hover:underline">Back to Home</a>
+    </div>
   </main>
 </Layout>

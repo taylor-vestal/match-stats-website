@@ -1,0 +1,37 @@
+.h2h-summary {
+  --player-w: clamp(10rem, 24vw, 12rem);
+  grid-template-areas: "a b c d e" "f f f f f";
+  grid-template-columns: var(--player-w) 2rem 1fr 2rem var(--player-w);
+}
+
+@media (min-width: 1200px) {
+  .h2h-summary {
+    --player-w: clamp(10rem, 24vw, 12rem);
+    grid-template-areas: "a b c d e" "a b f d e";
+    grid-template-columns: var(--player-w) 2rem 1fr 2rem var(--player-w);
+  }
+}
+
+.h2h-player.l {
+  grid-area: a;
+}
+
+.h2h-player.r {
+  grid-area: e;
+}
+
+.h2h-icons.l {
+  grid-area: b;
+}
+
+.h2h-icons.r {
+  grid-area: d;
+}
+
+.h2h-overall {
+  grid-area: c;
+}
+
+.h2h-compare-stats {
+  grid-area: f;
+}
