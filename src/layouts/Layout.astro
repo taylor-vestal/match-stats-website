@@ -1,6 +1,7 @@
 ---
 import "@/styles/global.css";
 import DevPanel from "@/components/DevPanel.astro";
+import { Nav } from "@/components/Nav";
 
 const isDev = import.meta.env.DEV;
 ---
@@ -12,9 +13,10 @@ const isDev = import.meta.env.DEV;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro Basics</title>
+    <title>Match Stats Website</title>
   </head>
   <body>
+    <Nav client:load />
     <slot />
     {isDev && <DevPanel />}
   </body>
