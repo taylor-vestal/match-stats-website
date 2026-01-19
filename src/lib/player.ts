@@ -31,10 +31,13 @@ export class Player {
   }
 
   getName(): string | undefined {
-    return statsDb.playerNames().get(this.id);
+    const db = statsDb();
+    if (!db) return undefined;
+    return db.playerNames().get(this.id);
   }
 
   async getAvatarUrl(): Promise<string | null> {
+    if (typeof window === "undefined") return null;
     const manifest = await loadAvatarManifest();
     const ext = manifest[this.id];
     if (!ext) return null;
