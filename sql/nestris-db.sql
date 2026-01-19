@@ -121,7 +121,7 @@ create table matches (
 	match_outcome_id integer not null,
 	--Check guarantees timestamps are in format 'YYYY-MM-DD HH:MM:SS"
 	match_timestamp text check(
-		(strftime('%F %T',match_timestamp) and length(match_timestamp)=10)
+		(strftime('%F %T',match_timestamp) and length(match_timestamp)=19)
 		or (match_timestamp is null)),
 	match_notes text,
 	foreign key (event_round_id) references event_rounds (event_round_id) on update cascade,
@@ -180,16 +180,6 @@ create table game_results (
 	playstyle_id integer not null,
 	score integer,
 	lines integer,
-	foreign key (game_id) references games (game_id) on update cascade,
-	foreign key (player_id) references players (player_id) on update cascade,
-	foreign key (playstyle_id) references playstyles (playstyle_id) on update cascade,
-	unique (game_id, player_id)
-) strict;
-
-create table detailed_game_results (
-	detailed_game_result_id integer primary key,
-	game_id integer not null,
-	player_id integer not null,
 	no_mullen_score integer,
 	no_mullen_lines integer,
 	level_19_transition_score integer,
@@ -201,6 +191,7 @@ create table detailed_game_results (
 	topout_type_id integer,
 	foreign key (game_id) references games (game_id) on update cascade,
 	foreign key (player_id) references players (player_id) on update cascade,
+	foreign key (playstyle_id) references playstyles (playstyle_id) on update cascade,
 	foreign key (topout_type_id) references topout_types (topout_type_id) on update cascade,
 	unique (game_id, player_id)
 ) strict;
