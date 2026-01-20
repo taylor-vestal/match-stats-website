@@ -6,6 +6,7 @@ import {
   Show,
   type Component,
 } from "solid-js";
+import { cn } from "@/lib/utils";
 import { BsFlag, BsTwitch, BsYoutube, BsPersonFill } from "solid-icons/bs";
 import { statsDb } from "@/lib/stats-db";
 import { Player, type PlayerSocials } from "@/lib/player";
@@ -38,6 +39,43 @@ interface PlayerIconsProps {
   playerId?: string;
   socials?: PlayerSocials;
 }
+
+interface RecordDisplayProps {
+  label: string;
+  left: number;
+  right: number;
+}
+
+const RecordDisplay: Component<RecordDisplayProps> = (props) => {
+  return (
+    <div class="flex flex-col items-center">
+      <span class="text-lg text-muted-foreground">{props.label}</span>
+      <div class="flex items-center gap-2">
+        <span class="text-4xl font-bold">{props.left}</span>
+        <span class="text-xl text-muted-foreground">-</span>
+        <span class="text-4xl font-bold">{props.right}</span>
+      </div>
+    </div>
+  );
+};
+
+const OverallStats: Component = () => {
+  return (
+    <aside
+      class={cn(
+        "h2h-overall flex flex-col items-center justify-evenly",
+        "min-[1200px]:grid min-[1200px]:grid-cols-2 min-[1200px]:items-center"
+      )}
+    >
+      <div class="min-[1200px]:justify-self-end min-[1200px]:pr-6">
+        <RecordDisplay label="Match Record" left={0} right={0} />
+      </div>
+      <div class="min-[1200px]:justify-self-start min-[1200px]:pl-6">
+        <RecordDisplay label="Game Record" left={0} right={0} />
+      </div>
+    </aside>
+  );
+};
 
 const PlayerIcons: Component<PlayerIconsProps> = (props) => {
   const iconClass = "w-full h-auto";
@@ -117,10 +155,51 @@ const PlayerSelect: Component<PlayerSelectProps> = (props) => {
   );
 };
 
+interface StatRowProps {
+  name: string;
+  left: number;
+  right: number;
+  format?: (n: number) => string;
+}
+
+const StatRow: Component<StatRowProps> = (props) => {
+  const fmt = () => props.format ?? ((n: number) => n.toLocaleString());
+  const diff = () => Math.abs(props.left - props.right);
+
+  return (
+    <>
+      <span class="text-xl text-left text-muted-foreground pr-4">
+        {props.name}
+      </span>
+      <span class="text-2xl text-left font-bold">{fmt()(props.left)}</span>
+      <span class="text-2xl text-center">
+        {props.left > props.right ? "◀" : ""}
+      </span>
+      <span class="text-2xl text-center font-bold">{fmt()(diff())}</span>
+      <span class="text-2xl text-center">
+        {props.right > props.left ? "▶" : ""}
+      </span>
+      <span class="text-2xl text-right font-bold">{fmt()(props.right)}</span>
+      <span class="text-xl text-right text-muted-foreground pl-4">
+        {props.name}
+      </span>
+    </>
+  );
+};
+
+const pctFormat = (n: number) => `${n}%`;
+
 const CompareStats: Component = () => {
   return (
-    <section class="h2h-compare-stats grid gap-4">
-      BIG BOX 67 VS 69 AYYYYYY
+    <section
+      class={cn(
+        "h2h-compare-stats items-center grid gap-x-2 gap-y-1",
+        "grid-cols-[auto_1fr_1.5rem_1fr_1.5rem_1fr_auto]"
+      )}
+    >
+      <StatRow name="Stat" left={1000000} right={800000} />
+      <StatRow name="Stat" left={100} right={100} format={pctFormat} />
+      <StatRow name="Stat" left={100} right={100} format={pctFormat} />
     </section>
   );
 };
@@ -171,7 +250,7 @@ const HeadToHead: Component = () => {
           playerId={player1Id()}
           socials={player1Socials()}
         />
-        <aside class="h2h-overall" />
+        <OverallStats />
         <CompareStats />
         <PlayerIcons
           class="h2h-icons r"
