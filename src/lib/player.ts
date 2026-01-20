@@ -37,7 +37,6 @@ export class Player {
   }
 
   async getAvatarUrl(): Promise<string | null> {
-    if (typeof window === "undefined") return null;
     const manifest = await loadAvatarManifest();
     const ext = manifest[this.id];
     if (!ext) return null;
