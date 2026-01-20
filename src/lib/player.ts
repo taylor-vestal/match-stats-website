@@ -23,6 +23,11 @@ async function loadAvatarManifest(): Promise<Record<string, string>> {
   return avatarManifest;
 }
 
+export interface PlayerSocials {
+  twitch: string | null;
+  youtube: string | null;
+}
+
 export class Player {
   private id: string;
 
@@ -34,6 +39,16 @@ export class Player {
     const db = statsDb();
     if (!db) return undefined;
     return db.playerNames().get(this.id);
+  }
+
+  getSocials(): PlayerSocials | undefined {
+    const db = statsDb();
+    if (!db) return undefined;
+    const rows = db.query<{ twitch: string | null; youtube: string | null }>(
+      `SELECT twitch, youtube FROM players WHERE player_id = '${this.id}'`
+    );
+    if (rows.length === 0) return undefined;
+    return rows[0];
   }
 
   async getAvatarUrl(): Promise<string | null> {

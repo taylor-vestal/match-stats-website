@@ -17,7 +17,7 @@ const linkStyles = cn(
 
 export function Nav() {
   return (
-    <NavigationMenu class="flex justify-center">
+    <NavigationMenu class="sticky left-0 w-screen flex justify-center">
       <NavigationMenu.Menu>
         {navItems.map((item) => (
           <NavigationMenu.Item>
