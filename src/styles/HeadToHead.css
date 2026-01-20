@@ -1,7 +1,7 @@
 .h2h-summary {
   --player-w: clamp(10rem, 24vw, 12rem);
   grid-template-areas: "a b c d e" "f f f f f";
-  grid-template-columns: var(--player-w) 2rem 1fr 2rem var(--player-w);
+  grid-template-columns: var(--player-w) 2.5rem 1fr 2.5rem var(--player-w);
 }
 
 @media (min-width: 1200px) {

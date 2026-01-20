@@ -6,8 +6,9 @@ import {
   Show,
   type Component,
 } from "solid-js";
+import { BsFlag, BsTwitch, BsYoutube, BsPersonFill } from "solid-icons/bs";
 import { statsDb } from "@/lib/stats-db";
-import { Player } from "@/lib/player";
+import { Player, type PlayerSocials } from "@/lib/player";
 import {
   Combobox,
   ComboboxContent,
@@ -31,6 +32,52 @@ interface PlayerAvatarProps {
   url: string | null | undefined;
   alt: string;
 }
+
+interface PlayerIconsProps {
+  class?: string;
+  playerId?: string;
+  socials?: PlayerSocials;
+}
+
+const PlayerIcons: Component<PlayerIconsProps> = (props) => {
+  const iconClass = "w-full h-auto";
+
+  return (
+    <aside class={`flex flex-col justify-between h-full ${props.class ?? ""}`}>
+      <BsFlag class={iconClass} />
+      <Show
+        when={props.socials?.twitch}
+        fallback={<BsTwitch class={`${iconClass} opacity-30`} />}
+      >
+        {(url) => (
+          <a href={url()} target="_blank" rel="noopener noreferrer">
+            <BsTwitch class={iconClass} style={{ color: "#944cff" }} />
+          </a>
+        )}
+      </Show>
+      <Show
+        when={props.socials?.youtube}
+        fallback={<BsYoutube class={`${iconClass} opacity-30`} />}
+      >
+        {(url) => (
+          <a href={url()} target="_blank" rel="noopener noreferrer">
+            <BsYoutube class={iconClass} style={{ color: "#fe0034" }} />
+          </a>
+        )}
+      </Show>
+      <Show
+        when={props.playerId}
+        fallback={<BsPersonFill class={`${iconClass} opacity-30`} />}
+      >
+        {(id) => (
+          <a href={`/player?p=${id()}`}>
+            <BsPersonFill class={iconClass} />
+          </a>
+        )}
+      </Show>
+    </aside>
+  );
+};
 
 const PlayerAvatar: Component<PlayerAvatarProps> = (props) => {
   return (
@@ -99,6 +146,15 @@ const HeadToHead: Component = () => {
     id ? new Player(id).getAvatarUrl() : null
   );
 
+  const player1Socials = createMemo(() => {
+    const id = player1Id();
+    return id ? new Player(id).getSocials() : undefined;
+  });
+  const player2Socials = createMemo(() => {
+    const id = player2Id();
+    return id ? new Player(id).getSocials() : undefined;
+  });
+
   return (
     <main class="container">
       <section class="h2h-summary grid gap-4 mt-8 mb-4">
@@ -110,10 +166,18 @@ const HeadToHead: Component = () => {
             players={allPlayers()}
           />
         </article>
-        <aside class="h2h-icons l" />
+        <PlayerIcons
+          class="h2h-icons l"
+          playerId={player1Id()}
+          socials={player1Socials()}
+        />
         <aside class="h2h-overall" />
         <CompareStats />
-        <aside class="h2h-icons r" />
+        <PlayerIcons
+          class="h2h-icons r"
+          playerId={player2Id()}
+          socials={player2Socials()}
+        />
         <article class="h2h-player r">
           <PlayerAvatar url={player2Avatar()} alt="Player 2" />
           <PlayerSelect
