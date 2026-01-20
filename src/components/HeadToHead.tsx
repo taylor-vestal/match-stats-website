@@ -27,6 +27,23 @@ interface PlayerSelectProps {
   players: PlayerOption[];
 }
 
+interface PlayerAvatarProps {
+  url: string | null | undefined;
+  alt: string;
+}
+
+const PlayerAvatar: Component<PlayerAvatarProps> = (props) => {
+  return (
+    <figure class="aspect-square mb-4">
+      <Show when={props.url} fallback={<div class="size-full bg-muted" />}>
+        {(url) => (
+          <img src={url()} alt={props.alt} class="size-full object-cover" />
+        )}
+      </Show>
+    </figure>
+  );
+};
+
 const PlayerSelect: Component<PlayerSelectProps> = (props) => {
   return (
     <Combobox<PlayerOption>
@@ -55,7 +72,9 @@ const PlayerSelect: Component<PlayerSelectProps> = (props) => {
 
 const CompareStats: Component = () => {
   return (
-    <div class="h2h-compare-stats grid gap-4">BIG BOX 67 VS 69 AYYYYYY</div>
+    <section class="h2h-compare-stats grid gap-4">
+      BIG BOX 67 VS 69 AYYYYYY
+    </section>
   );
 };
 
@@ -81,59 +100,33 @@ const HeadToHead: Component = () => {
   );
 
   return (
-    <div class="container">
-      <div class="h2h-summary grid gap-4 mt-8 mb-4">
-        <div class="h2h-player l">
-          <div id="avatar1" class="aspect-square mb-4">
-            <Show
-              when={player1Avatar()}
-              fallback={<div class="size-full bg-muted" />}
-            >
-              {(url) => (
-                <img
-                  src={url()}
-                  alt="Player 1"
-                  class="size-full object-cover"
-                />
-              )}
-            </Show>
-          </div>
+    <main class="container">
+      <section class="h2h-summary grid gap-4 mt-8 mb-4">
+        <article class="h2h-player l">
+          <PlayerAvatar url={player1Avatar()} alt="Player 1" />
           <PlayerSelect
             value={player1Id()}
             onChange={setPlayer1Id}
             players={allPlayers()}
           />
-        </div>
-        <div class="h2h-icons l"></div>
-        <div class="h2h-overall"></div>
+        </article>
+        <aside class="h2h-icons l" />
+        <aside class="h2h-overall" />
         <CompareStats />
-        <div class="h2h-icons r"></div>
-        <div class="h2h-player r">
-          <div id="avatar2" class="aspect-square mb-4">
-            <Show
-              when={player2Avatar()}
-              fallback={<div class="size-full bg-muted" />}
-            >
-              {(url) => (
-                <img
-                  src={url()}
-                  alt="Player 2"
-                  class="size-full object-cover"
-                />
-              )}
-            </Show>
-          </div>
+        <aside class="h2h-icons r" />
+        <article class="h2h-player r">
+          <PlayerAvatar url={player2Avatar()} alt="Player 2" />
           <PlayerSelect
             value={player2Id()}
             onChange={setPlayer2Id}
             players={allPlayers()}
           />
-        </div>
-      </div>
-      <div id="match-history" class="h-48 mt-4">
+        </article>
+      </section>
+      <section id="match-history" class="h-48 mt-4">
         MATCH HISTORY
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
