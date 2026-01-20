@@ -20,6 +20,7 @@ import {
   ComboboxItemLabel,
   ComboboxTrigger,
 } from "@/components/ui/combobox";
+import MatchHistory from "@/components/MatchHistory";
 
 type PlayerOption = { id: string; name: string };
 
@@ -266,8 +267,49 @@ const HeadToHead: Component = () => {
           />
         </article>
       </section>
-      <section id="match-history" class="h-48 mt-4">
-        MATCH HISTORY
+      <section id="match-history" class="mt-4">
+        <MatchHistory
+          player1Id={player1Id()}
+          player2Id={player2Id()}
+          matches={[
+            {
+              matchId: "1",
+              player1Id: player1Id(),
+              player2Id: player2Id(),
+              player1Score: 3000000,
+              player2Score: 2000000,
+              player1Style: "DAS",
+              player2Style: "TAP",
+              winnerId: player1Id(),
+              games: [
+                {
+                  gameId: "1",
+                  date: "2024-01-15",
+                  eventName: "CTWC 2024",
+                  winnerId: player1Id(),
+                },
+              ],
+            },
+            {
+              matchId: "2",
+              player1Id: player1Id(),
+              player2Id: player2Id(),
+              player1Score: 1000000,
+              player2Score: 3000000,
+              player1Style: "DAS",
+              player2Style: "TAP",
+              winnerId: player2Id(),
+              games: [
+                {
+                  gameId: "2",
+                  date: "2023-12-01",
+                  eventName: "CTM",
+                  winnerId: player2Id(),
+                },
+              ],
+            },
+          ]}
+        />
       </section>
     </main>
   );
