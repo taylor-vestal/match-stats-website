@@ -10,30 +10,8 @@ import { cn } from "@/lib/utils";
 import { BsFlag, BsTwitch, BsYoutube, BsPersonFill } from "solid-icons/bs";
 import { statsDb } from "@/lib/stats-db";
 import { Player, type PlayerSocials } from "@/lib/player";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxControl,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxItemLabel,
-  ComboboxTrigger,
-} from "@/components/ui/combobox";
+import { PlayerAvatar, PlayerSelect } from "@/components/PlayerPicker";
 import MatchHistory from "@/components/MatchHistory";
-
-type PlayerOption = { id: string; name: string };
-
-interface PlayerSelectProps {
-  value: string;
-  onChange: (id: string) => void;
-  players: PlayerOption[];
-}
-
-interface PlayerAvatarProps {
-  url: string | null | undefined;
-  alt: string;
-}
 
 interface PlayerIconsProps {
   class?: string;
@@ -115,44 +93,6 @@ const PlayerIcons: Component<PlayerIconsProps> = (props) => {
         )}
       </Show>
     </aside>
-  );
-};
-
-const PlayerAvatar: Component<PlayerAvatarProps> = (props) => {
-  return (
-    <figure class="aspect-square mb-4">
-      <Show when={props.url} fallback={<div class="size-full bg-muted" />}>
-        {(url) => (
-          <img src={url()} alt={props.alt} class="size-full object-cover" />
-        )}
-      </Show>
-    </figure>
-  );
-};
-
-const PlayerSelect: Component<PlayerSelectProps> = (props) => {
-  return (
-    <Combobox<PlayerOption>
-      value={props.players.find((p) => p.id === props.value) ?? null}
-      onChange={(val) => props.onChange(val?.id ?? "")}
-      options={props.players}
-      optionValue="id"
-      optionTextValue="name"
-      optionLabel="name"
-      placeholder="Select player"
-      itemComponent={(itemProps) => (
-        <ComboboxItem item={itemProps.item}>
-          <ComboboxItemLabel>{itemProps.item.rawValue.name}</ComboboxItemLabel>
-          <ComboboxItemIndicator />
-        </ComboboxItem>
-      )}
-    >
-      <ComboboxControl>
-        <ComboboxInput />
-        <ComboboxTrigger />
-      </ComboboxControl>
-      <ComboboxContent />
-    </Combobox>
   );
 };
 

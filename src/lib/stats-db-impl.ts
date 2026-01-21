@@ -7,7 +7,7 @@ export class StatsDB {
   private db: Database;
 
   // Lazy-loaded caches
-  private _playerNames: Map<string, string> | null = null;
+  private _playerNames: Map<number, string> | null = null;
 
   private constructor(db: Database) {
     this.db = db;
@@ -70,9 +70,9 @@ export class StatsDB {
     }));
   }
 
-  playerNames(): Map<string, string> {
+  playerNames(): Map<number, string> {
     if (!this._playerNames) {
-      const rows = this.query<{ player_id: string; username: string }>(
+      const rows = this.query<{ player_id: number; username: string }>(
         "SELECT player_id, username FROM players"
       );
       this._playerNames = new Map(rows.map((r) => [r.player_id, r.username]));
@@ -80,7 +80,7 @@ export class StatsDB {
     return this._playerNames;
   }
 
-  playerName(id: string): string | undefined {
+  playerName(id: number): string | undefined {
     return this.playerNames().get(id);
   }
 }
