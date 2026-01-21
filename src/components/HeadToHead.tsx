@@ -3,6 +3,7 @@ import {
   createSignal,
   createMemo,
   createResource,
+  onMount,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
@@ -105,6 +106,35 @@ const HeadToHead: Component = () => {
   const [player1Id, setPlayer1Id] = createSignal<number | null>(null);
   const [player2Id, setPlayer2Id] = createSignal<number | null>(null);
 
+  // Read URL on mount
+  onMount(() => {
+    const params = new URLSearchParams(window.location.search);
+    const l = params.get("l");
+    const r = params.get("r");
+    if (l) setPlayer1Id(Number(l));
+    if (r) setPlayer2Id(Number(r));
+  });
+
+  const updateUrl = () => {
+    const l = player1Id();
+    const r = player2Id();
+    const params = new URLSearchParams();
+    if (l) params.set("l", String(l));
+    if (r) params.set("r", String(r));
+    const query = params.toString();
+    history.replaceState(null, "", query ? `/compare?${query}` : "/compare");
+  };
+
+  const handlePlayer1Change = (id: number) => {
+    setPlayer1Id(id);
+    updateUrl();
+  };
+
+  const handlePlayer2Change = (id: number) => {
+    setPlayer2Id(id);
+    updateUrl();
+  };
+
   // Reactive player list - updates when statsDb becomes available
   const allPlayers = createMemo(() => {
     const db = statsDb();
@@ -138,7 +168,7 @@ const HeadToHead: Component = () => {
           <PlayerAvatar url={player1Avatar()} alt="Player 1" />
           <PlayerSelect
             value={player1Id()}
-            onChange={setPlayer1Id}
+            onChange={handlePlayer1Change}
             players={allPlayers()}
           />
         </article>
@@ -158,7 +188,7 @@ const HeadToHead: Component = () => {
           <PlayerAvatar url={player2Avatar()} alt="Player 2" />
           <PlayerSelect
             value={player2Id()}
-            onChange={setPlayer2Id}
+            onChange={handlePlayer2Change}
             players={allPlayers()}
           />
         </article>
