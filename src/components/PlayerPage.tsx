@@ -8,7 +8,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Player } from "@/lib/player";
 import { statsDb } from "@/lib/stats-db";
-import { PlayerAvatar, PlayerSelect } from "@/components/PlayerPicker";
+import {
+  PlayerAvatar,
+  PlayerSelect,
+  PlayerSocials,
+} from "@/components/PlayerComponents";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import "@/styles/PlayerPage.css";
 
@@ -25,6 +29,11 @@ const PlayerPage: Component = () => {
   const [avatarUrl] = createResource(playerId, (id) =>
     new Player(id).getAvatarUrl()
   );
+
+  const playerSocials = createMemo(() => {
+    const id = playerId();
+    return id ? new Player(id).getSocials() : undefined;
+  });
 
   const allPlayers = createMemo(() => {
     const db = statsDb();
@@ -61,7 +70,7 @@ const PlayerPage: Component = () => {
             onChange={handlePlayerChange}
             players={allPlayers()}
           />
-          <div class="text-xs text-muted-foreground">Social Icons</div>
+          <PlayerSocials socials={playerSocials()} />
         </aside>
         <div class={cn("player-key-stats", "flex gap-8 justify-center")}>
           <div class="flex flex-col items-center gap-1">

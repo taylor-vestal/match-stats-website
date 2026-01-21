@@ -3,21 +3,17 @@ import {
   createSignal,
   createMemo,
   createResource,
-  Show,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { BsFlag, BsTwitch, BsYoutube, BsPersonFill } from "solid-icons/bs";
 import { statsDb } from "@/lib/stats-db";
-import { Player, type PlayerSocials } from "@/lib/player";
-import { PlayerAvatar, PlayerSelect } from "@/components/PlayerPicker";
+import { Player } from "@/lib/player";
+import {
+  PlayerAvatar,
+  PlayerSelect,
+  PlayerIcons,
+} from "@/components/PlayerComponents";
 import MatchHistory from "@/components/MatchHistory";
-
-interface PlayerIconsProps {
-  class?: string;
-  playerId?: string;
-  socials?: PlayerSocials;
-}
 
 interface RecordDisplayProps {
   label: string;
@@ -52,46 +48,6 @@ const OverallStats: Component = () => {
       <div class="min-[1200px]:justify-self-start min-[1200px]:pl-6">
         <RecordDisplay label="Game Record" left={0} right={0} />
       </div>
-    </aside>
-  );
-};
-
-const PlayerIcons: Component<PlayerIconsProps> = (props) => {
-  const iconClass = "w-full h-auto";
-
-  return (
-    <aside class={`flex flex-col justify-between h-full ${props.class ?? ""}`}>
-      <BsFlag class={iconClass} />
-      <Show
-        when={props.socials?.twitch}
-        fallback={<BsTwitch class={`${iconClass} opacity-30`} />}
-      >
-        {(url) => (
-          <a href={url()} target="_blank" rel="noopener noreferrer">
-            <BsTwitch class={iconClass} style={{ color: "#944cff" }} />
-          </a>
-        )}
-      </Show>
-      <Show
-        when={props.socials?.youtube}
-        fallback={<BsYoutube class={`${iconClass} opacity-30`} />}
-      >
-        {(url) => (
-          <a href={url()} target="_blank" rel="noopener noreferrer">
-            <BsYoutube class={iconClass} style={{ color: "#fe0034" }} />
-          </a>
-        )}
-      </Show>
-      <Show
-        when={props.playerId}
-        fallback={<BsPersonFill class={`${iconClass} opacity-30`} />}
-      >
-        {(id) => (
-          <a href={`/player?p=${id()}`}>
-            <BsPersonFill class={iconClass} />
-          </a>
-        )}
-      </Show>
     </aside>
   );
 };
@@ -146,8 +102,8 @@ const CompareStats: Component = () => {
 };
 
 const HeadToHead: Component = () => {
-  const [player1Id, setPlayer1Id] = createSignal<string>("");
-  const [player2Id, setPlayer2Id] = createSignal<string>("");
+  const [player1Id, setPlayer1Id] = createSignal<number | null>(null);
+  const [player2Id, setPlayer2Id] = createSignal<number | null>(null);
 
   // Reactive player list - updates when statsDb becomes available
   const allPlayers = createMemo(() => {
