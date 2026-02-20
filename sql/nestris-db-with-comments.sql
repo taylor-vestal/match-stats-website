@@ -172,8 +172,9 @@ create table match_outcomes (
 	match_outcome text not null unique
 ) strict;
 
-/* Used to differentiate competitive from friendly matches
-   May also have special types like Third Place */
+/* Used to differentiate different types of matches 
+   1=Head-to-Head Competitive 
+	 Other entries could include head-to-head exhibitions, multiplayer matches, etc. */
 create table match_types (
 	match_type_id integer primary key,
 	match_type text not null unique
@@ -191,14 +192,14 @@ create table matches (
 	/* Not all matches have a single winner so this can be null
 	   eg: DAS League has Best of 6 which can tie, CTWC 2010 first round was weird */
 	match_winner_player_id integer,
-	/* This is used to flag competitive/friendly matches */
+	/* This is used to indicate the type of match. 1 for Head-to-Head Competitive is the most common */
 	match_type_id integer not null,
 	/* This is used to flag regular played matches, forfeits, and DQs */
 	match_outcome_id integer not null,
 	/* Not expected to be very precise, just enough to allow date range queries */
 	--Check guarantees timestamps are in format 'YYYY-MM-DD HH:MM:SS"
 	match_timestamp text check(
-		(strftime('%F %T',match_timestamp) and length(match_timestamp)=10)
+		(strftime('%F %T',match_timestamp) and length(match_timestamp)=19)
 		or (match_timestamp is null)),
 	/* Mostly used for anamolies (forfeit, dq reasons) */
 	match_notes text,
@@ -261,8 +262,8 @@ create table topout_types (
 	topout_type text not null unique
 ) strict;
 
-/* Simple game results, one for each player in a game - main source of data is Match Stats sheets
-   for some older matches only score or score & lines may be available */
+/* Game results, one for each player in a game - main source of data is Match Stats sheets.
+   For some older matches only score or score & lines may be available */
 create table game_results (
 	game_result_id integer primary key,
 	game_id integer not null,
@@ -273,17 +274,6 @@ create table game_results (
 	score integer,
 	/*  actual end lines */
 	lines integer,
-	foreign key (game_id) references games (game_id) on update cascade,
-	foreign key (player_id) references players (player_id) on update cascade,
-	foreign key (playstyle_id) references playstyles (playstyle_id) on update cascade,
-	unique (game_id, player_id)
-) strict;
-
-/* Detailed game stats, one for each player in a game - main source of data is Match Stats sheets */
-create table detailed_game_results (
-	detailed_game_result_id integer primary key,
-	game_id integer not null,
-	player_id integer not null,
 	/* score without mullening */
 	no_mullen_score integer,
 	/* lines without mullening */
@@ -303,6 +293,7 @@ create table detailed_game_results (
 	topout_type_id integer,
 	foreign key (game_id) references games (game_id) on update cascade,
 	foreign key (player_id) references players (player_id) on update cascade,
+	foreign key (playstyle_id) references playstyles (playstyle_id) on update cascade,
 	foreign key (topout_type_id) references topout_types (topout_type_id) on update cascade,
 	/* Only one record per player per game */
 	unique (game_id, player_id)
