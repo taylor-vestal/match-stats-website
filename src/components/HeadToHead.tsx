@@ -3,43 +3,18 @@ import {
   createSignal,
   createMemo,
   createResource,
-  Show,
+  onMount,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { BsFlag, BsTwitch, BsYoutube, BsPersonFill } from "solid-icons/bs";
 import { statsDb } from "@/lib/stats-db";
-import { Player, type PlayerSocials } from "@/lib/player";
+import { Player } from "@/lib/player";
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxControl,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxItemLabel,
-  ComboboxTrigger,
-} from "@/components/ui/combobox";
+  PlayerAvatar,
+  PlayerSelect,
+  PlayerIcons,
+} from "@/components/PlayerComponents";
 import MatchHistory from "@/components/MatchHistory";
-
-type PlayerOption = { id: string; name: string };
-
-interface PlayerSelectProps {
-  value: string;
-  onChange: (id: string) => void;
-  players: PlayerOption[];
-}
-
-interface PlayerAvatarProps {
-  url: string | null | undefined;
-  alt: string;
-}
-
-interface PlayerIconsProps {
-  class?: string;
-  playerId?: string;
-  socials?: PlayerSocials;
-}
 
 interface RecordDisplayProps {
   label: string;
@@ -75,84 +50,6 @@ const OverallStats: Component = () => {
         <RecordDisplay label="Game Record" left={0} right={0} />
       </div>
     </aside>
-  );
-};
-
-const PlayerIcons: Component<PlayerIconsProps> = (props) => {
-  const iconClass = "w-full h-auto";
-
-  return (
-    <aside class={`flex flex-col justify-between h-full ${props.class ?? ""}`}>
-      <BsFlag class={iconClass} />
-      <Show
-        when={props.socials?.twitch}
-        fallback={<BsTwitch class={`${iconClass} opacity-30`} />}
-      >
-        {(url) => (
-          <a href={url()} target="_blank" rel="noopener noreferrer">
-            <BsTwitch class={iconClass} style={{ color: "#944cff" }} />
-          </a>
-        )}
-      </Show>
-      <Show
-        when={props.socials?.youtube}
-        fallback={<BsYoutube class={`${iconClass} opacity-30`} />}
-      >
-        {(url) => (
-          <a href={url()} target="_blank" rel="noopener noreferrer">
-            <BsYoutube class={iconClass} style={{ color: "#fe0034" }} />
-          </a>
-        )}
-      </Show>
-      <Show
-        when={props.playerId}
-        fallback={<BsPersonFill class={`${iconClass} opacity-30`} />}
-      >
-        {(id) => (
-          <a href={`/player?p=${id()}`}>
-            <BsPersonFill class={iconClass} />
-          </a>
-        )}
-      </Show>
-    </aside>
-  );
-};
-
-const PlayerAvatar: Component<PlayerAvatarProps> = (props) => {
-  return (
-    <figure class="aspect-square mb-4">
-      <Show when={props.url} fallback={<div class="size-full bg-muted" />}>
-        {(url) => (
-          <img src={url()} alt={props.alt} class="size-full object-cover" />
-        )}
-      </Show>
-    </figure>
-  );
-};
-
-const PlayerSelect: Component<PlayerSelectProps> = (props) => {
-  return (
-    <Combobox<PlayerOption>
-      value={props.players.find((p) => p.id === props.value) ?? null}
-      onChange={(val) => props.onChange(val?.id ?? "")}
-      options={props.players}
-      optionValue="id"
-      optionTextValue="name"
-      optionLabel="name"
-      placeholder="Select player"
-      itemComponent={(itemProps) => (
-        <ComboboxItem item={itemProps.item}>
-          <ComboboxItemLabel>{itemProps.item.rawValue.name}</ComboboxItemLabel>
-          <ComboboxItemIndicator />
-        </ComboboxItem>
-      )}
-    >
-      <ComboboxControl>
-        <ComboboxInput />
-        <ComboboxTrigger />
-      </ComboboxControl>
-      <ComboboxContent />
-    </Combobox>
   );
 };
 
@@ -206,8 +103,37 @@ const CompareStats: Component = () => {
 };
 
 const HeadToHead: Component = () => {
-  const [player1Id, setPlayer1Id] = createSignal<string>("");
-  const [player2Id, setPlayer2Id] = createSignal<string>("");
+  const [player1Id, setPlayer1Id] = createSignal<number | null>(null);
+  const [player2Id, setPlayer2Id] = createSignal<number | null>(null);
+
+  // Read URL on mount
+  onMount(() => {
+    const params = new URLSearchParams(window.location.search);
+    const l = params.get("l");
+    const r = params.get("r");
+    if (l) setPlayer1Id(Number(l));
+    if (r) setPlayer2Id(Number(r));
+  });
+
+  const updateUrl = () => {
+    const l = player1Id();
+    const r = player2Id();
+    const params = new URLSearchParams();
+    if (l) params.set("l", String(l));
+    if (r) params.set("r", String(r));
+    const query = params.toString();
+    history.replaceState(null, "", query ? `/compare?${query}` : "/compare");
+  };
+
+  const handlePlayer1Change = (id: number) => {
+    setPlayer1Id(id);
+    updateUrl();
+  };
+
+  const handlePlayer2Change = (id: number) => {
+    setPlayer2Id(id);
+    updateUrl();
+  };
 
   // Reactive player list - updates when statsDb becomes available
   const allPlayers = createMemo(() => {
@@ -242,7 +168,7 @@ const HeadToHead: Component = () => {
           <PlayerAvatar url={player1Avatar()} alt="Player 1" />
           <PlayerSelect
             value={player1Id()}
-            onChange={setPlayer1Id}
+            onChange={handlePlayer1Change}
             players={allPlayers()}
           />
         </article>
@@ -262,7 +188,7 @@ const HeadToHead: Component = () => {
           <PlayerAvatar url={player2Avatar()} alt="Player 2" />
           <PlayerSelect
             value={player2Id()}
-            onChange={setPlayer2Id}
+            onChange={handlePlayer2Change}
             players={allPlayers()}
           />
         </article>

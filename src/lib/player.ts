@@ -29,23 +29,23 @@ export interface PlayerSocials {
 }
 
 export class Player {
-  private id: string;
+  private id: number;
 
-  constructor(id: string) {
+  constructor(id: number) {
     this.id = id;
   }
 
   getName(): string | undefined {
     const db = statsDb();
     if (!db) return undefined;
-    return db.playerNames().get(this.id);
+    return db.playerName(this.id);
   }
 
   getSocials(): PlayerSocials | undefined {
     const db = statsDb();
     if (!db) return undefined;
     const rows = db.query<{ twitch: string | null; youtube: string | null }>(
-      `SELECT twitch, youtube FROM players WHERE player_id = '${this.id}'`
+      `SELECT twitch, youtube FROM players WHERE player_id = ${this.id}`
     );
     if (rows.length === 0) return undefined;
     return rows[0];

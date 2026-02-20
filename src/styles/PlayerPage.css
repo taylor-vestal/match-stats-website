@@ -1,0 +1,16 @@
+/* Player Page Header Grid Layout */
+.player-header {
+  grid-template-columns: auto 1fr auto auto;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .player-header {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .player-key-stats {
+    grid-column: span 2;
+  }
+}

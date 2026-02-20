@@ -35,8 +35,13 @@ npm run download-avatars <csv-file>  # Download player avatars
 ```
 src/
 ├── components/        # Astro/Solid components
+│   ├── PlayerPage.tsx # Main player page component (grid layout)
+│   └── ui/            # Solid-UI components
 ├── layouts/           # Page layouts
 │   └── Layout.astro
+├── styles/
+│   ├── global.css     # Global styles and theme variables
+│   └── PlayerPage.css # Player page grid layout styles
 ├── lib/
 │   ├── stats-db.ts    # Database singleton
 │   ├── player.ts      # Player class with avatar support
@@ -145,6 +150,60 @@ This script:
 3. Saves to `public/img/avatar/{player_id}.{ext}`
 4. Generates `manifest.json` mapping IDs to extensions
 5. Reports any players missing from the CSV
+
+## Player Page Layout
+
+The player page (`/player?id=X`) uses a CSS Grid layout defined in `src/styles/PlayerPage.css`.
+
+### Grid Structure
+
+```
++------------------------------------------+-------------+
+|  header (avatar | info | key-stats | logo) | sidebar   |
++------------------------------------------+             |
+|  stats-table                             |             |
++------------------------------------------+             |
+|  summary                                 |             |
++------------------------------------------+             |
+|  game-history                            |             |
++------------------------------------------+-------------+
+```
+
+### Grid Areas
+
+- `header` - Player avatar, name, key stats, and logo
+- `sidebar` - Player selector, stat range setup, game history filters (spans full height)
+- `stats` - Yearly statistics table (2017-2024 + Career)
+- `summary` - Aggregated stats row (green bar)
+- `history` - Individual game/match history
+
+### Component Structure
+
+```tsx
+<main class="player-page">
+  <header class="player-header">
+    <aside class="player-avatar">{/* avatar + social icons */}</aside>
+    <div class="player-info">{/* name + subtitle */}</div>
+    <div class="player-key-stats">{/* 3 highlighted stats */}</div>
+    <aside class="player-logo">{/* CTM logo */}</aside>
+  </header>
+
+  <aside class="player-sidebar">
+    <div class="player-selector">{/* dropdown */}</div>
+    <div class="stat-range-setup">{/* filters */}</div>
+    <div class="game-history-setup">{/* filters */}</div>
+  </aside>
+
+  <section class="player-stats-table">{/* yearly stats grid */}</section>
+  <section class="player-summary">{/* summary row */}</section>
+  <section class="player-game-history">{/* game list */}</section>
+</main>
+```
+
+### Responsive Behavior
+
+- Below 1024px: Sidebar moves above main content, becomes horizontal
+- Below 768px: Header collapses, logo hidden, key stats span full width
 
 ## Code Style
 
