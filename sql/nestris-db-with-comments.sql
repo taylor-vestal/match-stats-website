@@ -66,9 +66,11 @@ create table events (
 	/* eg: Classic Tetris Monthly Masters December 2025 */
 	event_long_name text not null unique,
 	rounds integer not null,
+	event_winner_player_id integer,
 	event_notes text,
 	foreign key (organization_event_id) references organization_events (organization_event_id) on update cascade,
-	foreign key (event_playstyle_id) references event_playstyles (event_playstyle_id) on update cascade
+	foreign key (event_playstyle_id) references event_playstyles (event_playstyle_id) on update cascade,
+	foreign key (event_winner_player_id) references players (player_id) on update cascade
 ) strict;
 
 /* Only in-person events will have a record in this table */
@@ -291,6 +293,24 @@ create table game_results (
 	/* lines at level 39 transition, if transistion */
 	level_39_lines_start integer,
 	topout_type_id integer,
+	/* Bitmask representing unknown data.
+	   +-------+-------+-------------------------+
+		 |Nth Bit|Integer|Unknown Field            |
+	   +-------+-------+-------------------------+
+		 |      0|      1|score                    |
+		 |      1|      2|lines                    |
+		 |      2|      4|no_mullen_score          |
+		 |      3|      8|no_mullen_lines          |
+		 |      4|     16|level_19_transition_score|
+		 |      5|     32|level_19_lines_start     |
+		 |      6|     64|level_29_transition_score|
+		 |      7|    128|level_29_lines_start     |
+		 |      8|    256|level_39_transition_score|
+		 |      9|    512|level_39_lines_start     |
+		 |     10|   1024|topout_type_id           |
+	   +-------+-------+-------------------------+
+	 */
+	unknowns integer not null default 0,
 	game_result_notes text,
 	foreign key (game_id) references games (game_id) on update cascade,
 	foreign key (player_id) references players (player_id) on update cascade,
