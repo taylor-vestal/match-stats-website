@@ -1,14 +1,14 @@
 import {
   createSignal,
-  createResource,
   createMemo,
+  createResource,
   onMount,
   Show,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Player } from "@/lib/player";
 import { statsDb, statsDbSignal } from "@/lib/stats-db";
+import { Player, ensureAvatarManifest } from "@/lib/player";
 import {
   PlayerAvatar,
   PlayerSelect,
@@ -19,12 +19,16 @@ import "@/styles/PlayerPage.css";
 
 const PlayerPageInner: Component = () => {
   const [playerId, setPlayerId] = createSignal<number | null>(null);
+  const [avatarsLoaded, setAvatarsLoaded] = createSignal(false);
 
   // Read URL on mount - handles both initial load and client-side navigation
   onMount(() => {
     const params = new URLSearchParams(window.location.search);
     const p = params.get("p");
     setPlayerId(p ? Number(p) : null);
+
+    // Load avatar manifest for player selector
+    ensureAvatarManifest().then(() => setAvatarsLoaded(true));
   });
 
   const [avatarUrl] = createResource(playerId, (id) =>
@@ -39,8 +43,14 @@ const PlayerPageInner: Component = () => {
   const allPlayers = createMemo(() => {
     const db = statsDb();
     const names = db.playerNames();
+    // Re-run when avatars load to include avatar URLs
+    const _loaded = avatarsLoaded();
     return Array.from(names.entries())
-      .map(([id, name]) => ({ id, name }))
+      .map(([id, name]) => ({
+        id,
+        name,
+        avatarUrl: new Player(id).getAvatarUrlSync(),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 

@@ -9,7 +9,7 @@ import {
 } from "solid-js";
 import { cn } from "@/lib/utils";
 import { statsDb, statsDbSignal } from "@/lib/stats-db";
-import { Player } from "@/lib/player";
+import { Player, ensureAvatarManifest } from "@/lib/player";
 import {
   PlayerAvatar,
   PlayerSelect,
@@ -106,6 +106,7 @@ const CompareStats: Component = () => {
 const HeadToHeadInner: Component = () => {
   const [player1Id, setPlayer1Id] = createSignal<number | null>(null);
   const [player2Id, setPlayer2Id] = createSignal<number | null>(null);
+  const [avatarsLoaded, setAvatarsLoaded] = createSignal(false);
 
   // Read URL on mount
   onMount(() => {
@@ -114,6 +115,9 @@ const HeadToHeadInner: Component = () => {
     const r = params.get("r");
     if (l) setPlayer1Id(Number(l));
     if (r) setPlayer2Id(Number(r));
+
+    // Load avatar manifest for player selector
+    ensureAvatarManifest().then(() => setAvatarsLoaded(true));
   });
 
   const updateUrl = () => {
@@ -140,8 +144,14 @@ const HeadToHeadInner: Component = () => {
   const allPlayers = createMemo(() => {
     const db = statsDb();
     const names = db.playerNames();
+    // Re-run when avatars load to include avatar URLs
+    const _loaded = avatarsLoaded();
     return Array.from(names.entries())
-      .map(([id, name]) => ({ id, name }))
+      .map(([id, name]) => ({
+        id,
+        name,
+        avatarUrl: new Player(id).getAvatarUrlSync(),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
