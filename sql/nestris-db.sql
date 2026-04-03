@@ -28,10 +28,10 @@ create table events (
 	organization_event_id integer not null,
 	--Check guarantees that dates are in ISO format (YYYY-MM-DD) or null
 	start_date text check(
-		(strftime('%F',start_date) and length(start_date)=10)
+		(strftime('%F',start_date) is not null and length(start_date)=10)
 		or (start_date is null)),
 	end_date text check(
-		(strftime('%F',end_date) and length(start_date)=10)
+		(strftime('%F',end_date) is not null and length(start_date)=10)
 		or (end_date is null)),
 	year integer,
 	month integer,
@@ -42,9 +42,11 @@ create table events (
 	event_short_name text not null unique,
 	event_long_name text not null unique,
 	rounds integer not null,
+	event_winner_player_id integer,
 	event_notes text,
 	foreign key (organization_event_id) references organization_events (organization_event_id) on update cascade,
-	foreign key (event_playstyle_id) references event_playstyles (event_playstyle_id) on update cascade
+	foreign key (event_playstyle_id) references event_playstyles (event_playstyle_id) on update cascade,
+	foreign key (event_winner_player_id) references players (player_id) on update cascade
 ) strict;
 
 create table event_locations (
@@ -121,7 +123,7 @@ create table matches (
 	match_outcome_id integer not null,
 	--Check guarantees timestamps are in format 'YYYY-MM-DD HH:MM:SS"
 	match_timestamp text check(
-		(strftime('%F %T',match_timestamp) and length(match_timestamp)=19)
+		(strftime('%F %T',match_timestamp) is not null and length(match_timestamp)=19)
 		or (match_timestamp is null)),
 	match_notes text,
 	foreign key (event_round_id) references event_rounds (event_round_id) on update cascade,
@@ -136,8 +138,8 @@ create table match_results (
 	match_id integer not null,
 	player_id integer not null,
 	games_won integer,
-	foreign key (player_id) references players (player_id),
-	foreign key (match_id) references matches (match_id),
+	foreign key (player_id) references players (player_id) on update cascade,
+	foreign key (match_id) references matches (match_id) on update cascade,
 	unique (match_id, player_id)
 ) strict;
 
@@ -189,6 +191,8 @@ create table game_results (
 	level_39_transition_score integer,
 	level_39_lines_start integer,
 	topout_type_id integer,
+	unknowns integer not null default 0,
+	game_result_notes text,
 	foreign key (game_id) references games (game_id) on update cascade,
 	foreign key (player_id) references players (player_id) on update cascade,
 	foreign key (playstyle_id) references playstyles (playstyle_id) on update cascade,
