@@ -1,4 +1,5 @@
 import type { StatsDB } from "@/lib/stats-db-impl";
+import type { EventPlaystyle, Playstyle, TopoutType } from "@/lib/enums";
 
 export interface H2HMatchRow {
   matchId: number;
@@ -6,16 +7,16 @@ export interface H2HMatchRow {
   matchTimestamp: string | null;
   eventShortName: string;
   eventRoundName: string;
-  eventPlaystyle: string;
+  eventPlaystyle: EventPlaystyle;
   gameId: number | null;
   gameNumber: number | null;
   gameWinnerId: number | null;
   p1Score: number | null;
   p2Score: number | null;
-  p1Playstyle: string | null;
-  p2Playstyle: string | null;
-  p1Topout: string | null;
-  p2Topout: string | null;
+  p1Playstyle: Playstyle | null;
+  p2Playstyle: Playstyle | null;
+  p1Topout: TopoutType | null;
+  p2Topout: TopoutType | null;
 }
 
 export function h2hMatchHistory(

@@ -1,4 +1,5 @@
 import type { StatsDB } from "@/lib/stats-db";
+import type { TopoutType } from "@/lib/enums";
 import type {
   NumericStatistic,
   NumericStatisticResult,
@@ -34,13 +35,13 @@ export function getFairScores(
 ): Map<number, number[]> {
   const where = buildWhere(ctx, [
     "gr.score IS NOT NULL",
-    "tt.topout_type IN ('Natural', 'Intentional')",
+    "tt.topout_type IN ('Natural', 'Intentional', 'Aggressive')",
   ]);
 
   const rows = db.query<{
     player_id: number;
     score: number;
-    topout_type: string;
+    topout_type: TopoutType;
   }>(`
     SELECT gr.player_id, gr.score, tt.topout_type
     FROM game_results gr

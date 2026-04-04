@@ -1,4 +1,5 @@
 import { createSignal, For, Show, type Component } from "solid-js";
+import type { TopoutType } from "@/lib/enums";
 import {
   Table,
   TableBody,
@@ -24,8 +25,6 @@ interface GameResult {
   winnerId: string;
 }
 
-type TopoutType = "I" | "N";
-
 interface MatchResult {
   matchId: string;
   player1Id: string;
@@ -49,6 +48,18 @@ interface MatchHistoryProps {
   player1Id: string;
   player2Id: string;
   displayMode?: "Game" | "Match";
+}
+
+const topoutAbbrev: Record<TopoutType, string> = {
+  Natural: "N",
+  Intentional: "I",
+  Aggressive: "A",
+  Unknown: "U",
+};
+
+function toTopoutAbbrev(value: TopoutType | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  return topoutAbbrev[value];
 }
 
 const MatchHistory: Component<MatchHistoryProps> = (props) => {
@@ -86,32 +97,38 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
     return match.games.length > 0 ? (
       <For each={match.games}>
         {(game, gameIdx) => (
-          <TableRow style={gameIdx() === 0 ? matchBorder() : {}}>
-            <TableCell class="text-center">
+          <TableRow
+            class="text-center"
+            style={gameIdx() === 0 ? matchBorder() : {}}
+          >
+            <TableCell>
               {getResultBadge(props.player1Id, game.winnerId)}
             </TableCell>
-            <TableCell class="text-center text-muted-foreground">
+            <TableCell class="text-muted-foreground">
               {game.player1Style ?? match.player1Style ?? "-"}
             </TableCell>
-            <TableCell class="text-center text-muted-foreground">
-              {game.player1Topout ?? match.player1Topout ?? "-"}
+            <TableCell class="text-muted-foreground">
+              {toTopoutAbbrev(game.player1Topout) ??
+                toTopoutAbbrev(match.player1Topout) ??
+                "-"}
             </TableCell>
             <TableCell class="text-right font-mono font-semibold">
               {game.player1Score?.toLocaleString()}
             </TableCell>
-            <TableCell class="text-center">
+            <TableCell>
               <div class="text-xs text-muted-foreground">
-                <span class="font-medium">Game {game.gameNumber}</span>
-                {match.roundName && (
-                  <>
-                    {" "}
-                    - <span>{match.roundName}</span>
-                  </>
-                )}
+                <span class="font-medium">#{game.gameNumber}</span>
                 {game.eventName && (
                   <>
                     {" "}
                     - <span>{game.eventName}</span>
+                  </>
+                )}
+                {match.roundName && (
+                  <>
+                    {" ("}
+                    <span>{match.roundName}</span>
+                    {")"}
                   </>
                 )}
                 {game.date && <> - {game.date}</>}
@@ -120,13 +137,15 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
             <TableCell class="text-left font-mono font-semibold">
               {game.player2Score?.toLocaleString()}
             </TableCell>
-            <TableCell class="text-center text-muted-foreground">
-              {game.player2Topout ?? match.player2Topout ?? "-"}
+            <TableCell class="text-muted-foreground">
+              {toTopoutAbbrev(game.player2Topout) ??
+                toTopoutAbbrev(match.player2Topout) ??
+                "-"}
             </TableCell>
-            <TableCell class="text-center text-muted-foreground">
+            <TableCell class="text-muted-foreground">
               {game.player2Style ?? match.player2Style ?? "-"}
             </TableCell>
-            <TableCell class="text-center">
+            <TableCell>
               {getResultBadge(props.player2Id, game.winnerId)}
             </TableCell>
           </TableRow>
@@ -189,7 +208,7 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
             {match.player1Style ?? "-"}
           </TableCell>
           <TableCell class="text-center text-muted-foreground">
-            {match.player1Topout ?? "-"}
+            {toTopoutAbbrev(match.player1Topout) ?? "-"}
           </TableCell>
           <TableCell class="text-right font-mono font-semibold">
             {match.player1Score}
@@ -220,7 +239,7 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
             {match.player2Score}
           </TableCell>
           <TableCell class="text-center text-muted-foreground">
-            {match.player2Topout ?? "-"}
+            {toTopoutAbbrev(match.player2Topout) ?? "-"}
           </TableCell>
           <TableCell class="text-center text-muted-foreground">
             {match.player2Style ?? "-"}
@@ -232,20 +251,22 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
         <Show when={isExpanded()}>
           <For each={match.games}>
             {(game) => (
-              <TableRow class="bg-muted/30">
-                <TableCell class="text-center">
+              <TableRow class="bg-muted/30 text-center">
+                <TableCell>
                   {getResultBadge(props.player1Id, game.winnerId)}
                 </TableCell>
-                <TableCell class="text-center text-muted-foreground">
+                <TableCell class="text-muted-foreground">
                   {game.player1Style ?? match.player1Style ?? "-"}
                 </TableCell>
-                <TableCell class="text-center text-muted-foreground">
-                  {game.player1Topout ?? match.player1Topout ?? "-"}
+                <TableCell class="text-muted-foreground">
+                  {toTopoutAbbrev(game.player1Topout) ??
+                    toTopoutAbbrev(match.player1Topout) ??
+                    "-"}
                 </TableCell>
                 <TableCell class="text-right font-mono font-semibold">
                   {game.player1Score?.toLocaleString()}
                 </TableCell>
-                <TableCell class="text-center">
+                <TableCell>
                   <div class="text-xs text-muted-foreground">
                     <span class="font-medium">Game {game.gameNumber}</span>
                   </div>
@@ -253,13 +274,15 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
                 <TableCell class="text-left font-mono font-semibold">
                   {game.player2Score?.toLocaleString()}
                 </TableCell>
-                <TableCell class="text-center text-muted-foreground">
-                  {game.player2Topout ?? match.player2Topout ?? "-"}
+                <TableCell class="text-muted-foreground">
+                  {toTopoutAbbrev(game.player2Topout) ??
+                    toTopoutAbbrev(match.player2Topout) ??
+                    "-"}
                 </TableCell>
-                <TableCell class="text-center text-muted-foreground">
+                <TableCell class="text-muted-foreground">
                   {game.player2Style ?? match.player2Style ?? "-"}
                 </TableCell>
-                <TableCell class="text-center">
+                <TableCell>
                   {getResultBadge(props.player2Id, game.winnerId)}
                 </TableCell>
               </TableRow>
@@ -310,4 +333,4 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
 };
 
 export default MatchHistory;
-export type { MatchHistoryProps, MatchResult, GameResult, TopoutType };
+export type { MatchHistoryProps, MatchResult, GameResult };

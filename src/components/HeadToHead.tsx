@@ -16,11 +16,29 @@ import {
   PlayerIcons,
 } from "@/components/PlayerComponents";
 import MatchHistory, { type MatchResult } from "@/components/MatchHistory";
+import type { EventPlaystyle } from "@/lib/enums";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { h2hMatchHistory, type H2HMatchRow } from "@/lib/stats/h2h";
 import { FairMedianScore, HighRange, LowRange } from "@/lib/stats/player";
+import type { StatisticalContext, StatisticalFilters } from "@/lib/stats/types";
 
 const CURRENT_YEAR = 2025;
+
+type EventPlaystyleOption = "All" | "Open" | "DAS";
+type DisplayMode = "Game" | "Match";
+
+function playstyleFilterToEventPlaystyle(
+  p: EventPlaystyleOption
+): EventPlaystyle | undefined {
+  switch (p) {
+    case "All":
+      return undefined;
+    case "Open":
+      return "Open";
+    case "DAS":
+      return "DAS";
+  }
+}
 
 interface RecordDisplayProps {
   label: string;
@@ -104,12 +122,10 @@ const StatRow: Component<StatRowProps> = (props) => {
   );
 };
 
-const pctFormat = (n: number) => `${n}%`;
-
 interface CompareStatsProps {
   player1Id: number | null;
   player2Id: number | null;
-  playstyle: string;
+  playstyle: EventPlaystyleOption;
 }
 
 const CompareStats: Component<CompareStatsProps> = (props) => {
@@ -118,13 +134,13 @@ const CompareStats: Component<CompareStatsProps> = (props) => {
     const p1 = props.player1Id;
     const p2 = props.player2Id;
     if (!p1 || !p2) return null;
-    const ep = props.playstyle === "All" ? undefined : props.playstyle;
-    const filters = {
+    const ep = playstyleFilterToEventPlaystyle(props.playstyle);
+    const filters: StatisticalFilters = {
       eventPlaystyle: ep,
       startDate: `${CURRENT_YEAR}-01-01`,
       endDate: `${CURRENT_YEAR}-12-31`,
     };
-    const ctx = { playerId: [p1, p2], filters };
+    const ctx: StatisticalContext = { playerId: [p1, p2], filters };
     const p1s = String(p1);
     const p2s = String(p2);
     const val = (
@@ -233,11 +249,9 @@ const HeadToHeadInner: Component = () => {
     id ? new Player(id).getAvatarUrl() : null
   );
 
-  type PlaystyleFilter = "All" | "Open" | "DAS";
-  type DisplayMode = "Game" | "Match";
-  const defaultPlaystyle: PlaystyleFilter = "Open";
+  const defaultPlaystyle: EventPlaystyleOption = "Open";
   const [playstyleFilter, setPlaystyleFilter] =
-    createSignal<PlaystyleFilter>(defaultPlaystyle);
+    createSignal<EventPlaystyleOption>(defaultPlaystyle);
   const [displayMode, setDisplayMode] = createSignal<DisplayMode>("Game");
 
   const h2hMatches = createMemo((): MatchResult[] => {
@@ -267,27 +281,30 @@ const HeadToHeadInner: Component = () => {
         player2Score: games.reduce((sum, g) => sum + (g.p2Score ?? 0), 0),
         player1Style: first.p1Playstyle ?? undefined,
         player2Style: first.p2Playstyle ?? undefined,
-        player1Topout: (first.p1Topout as "I" | "N" | undefined) ?? undefined,
-        player2Topout: (first.p2Topout as "I" | "N" | undefined) ?? undefined,
+        player1Topout: first.p1Topout ?? undefined,
+        player2Topout: first.p2Topout ?? undefined,
         winnerId: String(first.matchWinnerId),
         roundName: first.eventRoundName,
         eventName: first.eventShortName,
         eventPlaystyle: first.eventPlaystyle,
         date: first.matchTimestamp?.slice(0, 10) ?? undefined,
         games: games
-          .filter((g) => g.gameId != null)
+          .filter(
+            (g): g is H2HMatchRow & { gameId: number; gameNumber: number } =>
+              g.gameId != null && g.gameNumber != null
+          )
           .toReversed()
           .map((g) => ({
             gameId: String(g.gameId),
-            gameNumber: g.gameNumber!,
+            gameNumber: g.gameNumber,
             date: first.matchTimestamp?.slice(0, 10) ?? "",
             eventName: first.eventShortName,
             player1Score: g.p1Score ?? undefined,
             player2Score: g.p2Score ?? undefined,
             player1Style: g.p1Playstyle ?? undefined,
             player2Style: g.p2Playstyle ?? undefined,
-            player1Topout: (g.p1Topout as "I" | "N" | undefined) ?? undefined,
-            player2Topout: (g.p2Topout as "I" | "N" | undefined) ?? undefined,
+            player1Topout: g.p1Topout ?? undefined,
+            player2Topout: g.p2Topout ?? undefined,
             winnerId: String(g.gameWinnerId),
           })),
       };
@@ -379,7 +396,7 @@ const HeadToHeadInner: Component = () => {
         <div class="flex justify-between items-center mb-2">
           <Tabs
             defaultValue={defaultPlaystyle}
-            onChange={(v) => setPlaystyleFilter(v as PlaystyleFilter)}
+            onChange={(v) => setPlaystyleFilter(v as EventPlaystyleOption)}
           >
             <TabsList class="w-fit">
               <TabsTrigger value="Open">Open</TabsTrigger>

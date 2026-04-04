@@ -1,11 +1,12 @@
 import type { StatsDB } from "@/lib/stats-db";
+import type { EventPlaystyle, Playstyle } from "@/lib/enums";
 
 export interface StatisticalFilters {
   eventIds?: string[];
   startDate?: string; // ISO date
   endDate?: string;
-  playstyle?: string;
-  eventPlaystyle?: string; // "Open", "DAS", etc. — filters on event_playstyles table
+  playstyle?: Playstyle;
+  eventPlaystyle?: EventPlaystyle;
   matchType?: string;
 }
 
