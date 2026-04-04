@@ -1,4 +1,4 @@
-import type { statsDb } from "@/lib/stats-db";
+import type { StatsDB } from "@/lib/stats-db";
 
 export interface StatisticalFilters {
   eventIds?: string[];
@@ -23,8 +23,5 @@ export interface NumericStatistic {
   id: string;
   name: string;
   description: string;
-  evaluate(
-    db: typeof statsDb,
-    ctx: StatisticalContext
-  ): NumericStatisticResult[];
+  evaluate(db: StatsDB, ctx: StatisticalContext): NumericStatisticResult[];
 }

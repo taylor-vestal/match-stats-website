@@ -1,4 +1,4 @@
-import { statsDb } from "./stats-db";
+import { statsDb } from "@/lib/stats-db";
 
 // Cached avatar manifest
 let avatarManifest: Record<string, string> | null = null;
@@ -36,17 +36,14 @@ export class Player {
   }
 
   getName(): string | undefined {
-    const db = statsDb();
-    if (!db) return undefined;
-    return db.playerName(this.id);
+    return statsDb().playerName(this.id);
   }
 
   getSocials(): PlayerSocials | undefined {
-    const db = statsDb();
-    if (!db) return undefined;
-    const rows = db.query<{ twitch: string | null; youtube: string | null }>(
-      `SELECT twitch, youtube FROM players WHERE player_id = ${this.id}`
-    );
+    const rows = statsDb().query<{
+      twitch: string | null;
+      youtube: string | null;
+    }>(`SELECT twitch, youtube FROM players WHERE player_id = ${this.id}`);
     if (rows.length === 0) return undefined;
     return rows[0];
   }

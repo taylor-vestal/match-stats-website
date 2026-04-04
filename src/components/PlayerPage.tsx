@@ -3,11 +3,12 @@ import {
   createResource,
   createMemo,
   onMount,
+  Show,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
 import { Player } from "@/lib/player";
-import { statsDb } from "@/lib/stats-db";
+import { statsDb, statsDbSignal } from "@/lib/stats-db";
 import {
   PlayerAvatar,
   PlayerSelect,
@@ -16,7 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import "@/styles/PlayerPage.css";
 
-const PlayerPage: Component = () => {
+const PlayerPageInner: Component = () => {
   const [playerId, setPlayerId] = createSignal<number | null>(null);
 
   // Read URL on mount - handles both initial load and client-side navigation
@@ -37,7 +38,6 @@ const PlayerPage: Component = () => {
 
   const allPlayers = createMemo(() => {
     const db = statsDb();
-    if (!db) return [];
     const names = db.playerNames();
     return Array.from(names.entries())
       .map(([id, name]) => ({ id, name }))
@@ -218,5 +218,11 @@ const PlayerPage: Component = () => {
     </main>
   );
 };
+
+const PlayerPage: Component = () => (
+  <Show when={statsDbSignal()}>
+    <PlayerPageInner />
+  </Show>
+);
 
 export default PlayerPage;
