@@ -13,7 +13,7 @@ import Layout from "@/layouts/Layout.astro";
 </Layout>
 <script>
   import { allStats } from "@/lib/stats";
-  import { statsDb, dbReady } from "@/lib/stats-db";
+  import { statsDb, statsDbSignal } from "@/lib/stats-db";
   import { Player } from "@/lib/player";
   import { createEffect } from "solid-js";
 
@@ -22,8 +22,7 @@ import Layout from "@/layouts/Layout.astro";
 
   // Wait for db to be ready before setting up buttons
   createEffect(() => {
-    if (!dbReady()) return;
-    const db = statsDb();
+    const db = statsDbSignal();
     if (!db) return;
 
     container!.innerHTML = "";

@@ -4,10 +4,11 @@ import {
   createMemo,
   createResource,
   onMount,
+  Show,
   type Component,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { statsDb } from "@/lib/stats-db";
+import { statsDb, statsDbSignal } from "@/lib/stats-db";
 import { Player } from "@/lib/player";
 import {
   PlayerAvatar,
@@ -102,7 +103,7 @@ const CompareStats: Component = () => {
   );
 };
 
-const HeadToHead: Component = () => {
+const HeadToHeadInner: Component = () => {
   const [player1Id, setPlayer1Id] = createSignal<number | null>(null);
   const [player2Id, setPlayer2Id] = createSignal<number | null>(null);
 
@@ -138,7 +139,6 @@ const HeadToHead: Component = () => {
   // Reactive player list - updates when statsDb becomes available
   const allPlayers = createMemo(() => {
     const db = statsDb();
-    if (!db) return [];
     const names = db.playerNames();
     return Array.from(names.entries())
       .map(([id, name]) => ({ id, name }))
@@ -240,5 +240,11 @@ const HeadToHead: Component = () => {
     </main>
   );
 };
+
+const HeadToHead: Component = () => (
+  <Show when={statsDbSignal()}>
+    <HeadToHeadInner />
+  </Show>
+);
 
 export default HeadToHead;

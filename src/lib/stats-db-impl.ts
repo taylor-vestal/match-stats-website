@@ -37,6 +37,7 @@ export class StatsDB {
 
     const p = sqlite3.wasm.allocFromTypedArray(new Uint8Array(arrayBuffer));
     const db = new sqlite3.oo1.DB();
+    if (db.pointer === undefined) throw new Error("DB pointer is undefined");
 
     const rc = sqlite3.capi.sqlite3_deserialize(
       db.pointer,
