@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface GameResult {
   gameId: string;
+  gameNumber: number;
   date: string;
   eventName?: string;
   player1Score?: number;
@@ -32,6 +33,9 @@ interface MatchResult {
   player1Topout?: TopoutType;
   player2Topout?: TopoutType;
   winnerId: string;
+  roundName?: string;
+  eventName?: string;
+  date?: string;
   games: GameResult[];
 }
 
@@ -55,7 +59,7 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
   };
 
   return (
-    <Card>
+    <Card class="border-[3px] border-foreground/40 overflow-hidden">
       <CardContent class="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
@@ -73,49 +77,110 @@ const MatchHistory: Component<MatchHistoryProps> = (props) => {
           </TableHeader>
           <TableBody>
             <For each={props.matches}>
-              {(match) => (
-                <TableRow>
-                  <TableCell class="text-center">
-                    {getResultBadge(props.player1Id, match.winnerId)}
-                  </TableCell>
-                  <TableCell class="text-center text-muted-foreground">
-                    {match.player1Style ?? "-"}
-                  </TableCell>
-                  <TableCell class="text-center text-muted-foreground">
-                    {match.player1Topout ?? "-"}
-                  </TableCell>
-                  <TableCell class="text-center font-mono font-semibold">
-                    {match.player1Score}
-                  </TableCell>
-                  <TableCell class="text-center">
-                    <div class="space-y-1">
-                      <For each={match.games}>
-                        {(game) => (
+              {(match, matchIdx) => {
+                const matchBorder = () =>
+                  matchIdx() > 0
+                    ? { "border-top": "3px solid hsl(var(--foreground) / 0.4)" }
+                    : {};
+
+                return match.games.length > 0 ? (
+                  <For each={match.games}>
+                    {(game, gameIdx) => (
+                      <TableRow style={gameIdx() === 0 ? matchBorder() : {}}>
+                        <TableCell class="text-center">
+                          {getResultBadge(props.player1Id, game.winnerId)}
+                        </TableCell>
+                        <TableCell class="text-center text-muted-foreground">
+                          {match.player1Style ?? "-"}
+                        </TableCell>
+                        <TableCell class="text-center text-muted-foreground">
+                          {match.player1Topout ?? "-"}
+                        </TableCell>
+                        <TableCell class="text-right font-mono font-semibold">
+                          {game.player1Score?.toLocaleString()}
+                        </TableCell>
+                        <TableCell class="text-center">
                           <div class="text-xs text-muted-foreground">
-                            {game.eventName && (
-                              <span class="font-medium">{game.eventName}</span>
+                            <span class="font-medium">
+                              Game {game.gameNumber}
+                            </span>
+                            {match.roundName && (
+                              <>
+                                {" "}
+                                - <span>{match.roundName}</span>
+                              </>
                             )}
-                            {game.eventName && game.date && " - "}
-                            {game.date}
+                            {game.eventName && (
+                              <>
+                                {" "}
+                                - <span>{game.eventName}</span>
+                              </>
+                            )}
+                            {game.date && <> - {game.date}</>}
                           </div>
+                        </TableCell>
+                        <TableCell class="text-left font-mono font-semibold">
+                          {game.player2Score?.toLocaleString()}
+                        </TableCell>
+                        <TableCell class="text-center text-muted-foreground">
+                          {match.player2Topout ?? "-"}
+                        </TableCell>
+                        <TableCell class="text-center text-muted-foreground">
+                          {match.player2Style ?? "-"}
+                        </TableCell>
+                        <TableCell class="text-center">
+                          {getResultBadge(props.player2Id, game.winnerId)}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </For>
+                ) : (
+                  <TableRow style={matchBorder()}>
+                    <TableCell class="text-center">
+                      {getResultBadge(props.player1Id, match.winnerId)}
+                    </TableCell>
+                    <TableCell class="text-center text-muted-foreground">
+                      -
+                    </TableCell>
+                    <TableCell class="text-center text-muted-foreground">
+                      -
+                    </TableCell>
+                    <TableCell class="text-right font-mono font-semibold">
+                      -
+                    </TableCell>
+                    <TableCell class="text-center">
+                      <div class="text-xs text-muted-foreground">
+                        <span class="italic">No game data</span>
+                        {match.roundName && (
+                          <>
+                            {" "}
+                            - <span>{match.roundName}</span>
+                          </>
                         )}
-                      </For>
-                    </div>
-                  </TableCell>
-                  <TableCell class="text-center font-mono font-semibold">
-                    {match.player2Score}
-                  </TableCell>
-                  <TableCell class="text-center text-muted-foreground">
-                    {match.player2Topout ?? "-"}
-                  </TableCell>
-                  <TableCell class="text-center text-muted-foreground">
-                    {match.player2Style ?? "-"}
-                  </TableCell>
-                  <TableCell class="text-center">
-                    {getResultBadge(props.player2Id, match.winnerId)}
-                  </TableCell>
-                </TableRow>
-              )}
+                        {match.eventName && (
+                          <>
+                            {" "}
+                            - <span>{match.eventName}</span>
+                          </>
+                        )}
+                        {match.date && <> - {match.date}</>}
+                      </div>
+                    </TableCell>
+                    <TableCell class="text-left font-mono font-semibold">
+                      -
+                    </TableCell>
+                    <TableCell class="text-center text-muted-foreground">
+                      -
+                    </TableCell>
+                    <TableCell class="text-center text-muted-foreground">
+                      -
+                    </TableCell>
+                    <TableCell class="text-center">
+                      {getResultBadge(props.player2Id, match.winnerId)}
+                    </TableCell>
+                  </TableRow>
+                );
+              }}
             </For>
           </TableBody>
         </Table>

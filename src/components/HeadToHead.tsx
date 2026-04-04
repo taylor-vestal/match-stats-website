@@ -15,7 +15,8 @@ import {
   PlayerSelect,
   PlayerIcons,
 } from "@/components/PlayerComponents";
-import MatchHistory from "@/components/MatchHistory";
+import MatchHistory, { type MatchResult } from "@/components/MatchHistory";
+import type { H2HMatchRow } from "@/lib/stats-db-impl";
 
 interface RecordDisplayProps {
   label: string;
@@ -36,7 +37,12 @@ const RecordDisplay: Component<RecordDisplayProps> = (props) => {
   );
 };
 
-const OverallStats: Component = () => {
+interface OverallStatsProps {
+  matchRecord: { p1Wins: number; p2Wins: number };
+  gameRecord: { p1Wins: number; p2Wins: number };
+}
+
+const OverallStats: Component<OverallStatsProps> = (props) => {
   return (
     <aside
       class={cn(
@@ -45,10 +51,18 @@ const OverallStats: Component = () => {
       )}
     >
       <div class="min-[1200px]:justify-self-end min-[1200px]:pr-6">
-        <RecordDisplay label="Match Record" left={0} right={0} />
+        <RecordDisplay
+          label="Match Record"
+          left={props.matchRecord.p1Wins}
+          right={props.matchRecord.p2Wins}
+        />
       </div>
       <div class="min-[1200px]:justify-self-start min-[1200px]:pl-6">
-        <RecordDisplay label="Game Record" left={0} right={0} />
+        <RecordDisplay
+          label="Game Record"
+          left={props.gameRecord.p1Wins}
+          right={props.gameRecord.p2Wins}
+        />
       </div>
     </aside>
   );
@@ -162,6 +176,73 @@ const HeadToHeadInner: Component = () => {
     id ? new Player(id).getAvatarUrl() : null
   );
 
+  const defaultRecord = { p1Wins: 0, p2Wins: 0 };
+
+  const matchRecord = createMemo(() => {
+    const db = statsDb();
+    const p1 = player1Id();
+    const p2 = player2Id();
+    if (!db || !p1 || !p2) return defaultRecord;
+    return db.h2hMatchRecord(p1, p2);
+  });
+
+  const gameRecord = createMemo(() => {
+    const db = statsDb();
+    const p1 = player1Id();
+    const p2 = player2Id();
+    if (!db || !p1 || !p2) return defaultRecord;
+    return db.h2hGameRecord(p1, p2);
+  });
+
+  const h2hMatches = createMemo((): MatchResult[] => {
+    const db = statsDb();
+    const p1 = player1Id();
+    const p2 = player2Id();
+    if (!db || !p1 || !p2) return [];
+
+    const rows = db.h2hMatchHistory(p1, p2);
+    const grouped = new Map<number, H2HMatchRow[]>();
+    for (const row of rows) {
+      let group = grouped.get(row.matchId);
+      if (!group) {
+        group = [];
+        grouped.set(row.matchId, group);
+      }
+      group.push(row);
+    }
+
+    return Array.from(grouped.values()).map((games) => {
+      const first = games[0];
+      return {
+        matchId: String(first.matchId),
+        player1Id: String(p1),
+        player2Id: String(p2),
+        player1Score: games.reduce((sum, g) => sum + (g.p1Score ?? 0), 0),
+        player2Score: games.reduce((sum, g) => sum + (g.p2Score ?? 0), 0),
+        player1Style: first.p1Playstyle ?? undefined,
+        player2Style: first.p2Playstyle ?? undefined,
+        player1Topout: (first.p1Topout as "I" | "N" | undefined) ?? undefined,
+        player2Topout: (first.p2Topout as "I" | "N" | undefined) ?? undefined,
+        winnerId: String(first.matchWinnerId),
+        roundName: first.eventRoundName,
+        eventName: first.eventShortName,
+        date: first.matchTimestamp?.slice(0, 10) ?? undefined,
+        games: games
+          .filter((g) => g.gameId != null)
+          .toReversed()
+          .map((g) => ({
+            gameId: String(g.gameId),
+            gameNumber: g.gameNumber!,
+            date: first.matchTimestamp?.slice(0, 10) ?? "",
+            eventName: first.eventShortName,
+            player1Score: g.p1Score ?? undefined,
+            player2Score: g.p2Score ?? undefined,
+            winnerId: String(g.gameWinnerId),
+          })),
+      };
+    });
+  });
+
   const player1Socials = createMemo(() => {
     const id = player1Id();
     return id ? new Player(id).getSocials() : undefined;
@@ -187,7 +268,7 @@ const HeadToHeadInner: Component = () => {
           playerId={player1Id()}
           socials={player1Socials()}
         />
-        <OverallStats />
+        <OverallStats matchRecord={matchRecord()} gameRecord={gameRecord()} />
         <CompareStats />
         <PlayerIcons
           class="h2h-icons r"
@@ -205,46 +286,9 @@ const HeadToHeadInner: Component = () => {
       </section>
       <section id="match-history" class="mt-4">
         <MatchHistory
-          player1Id={player1Id()}
-          player2Id={player2Id()}
-          matches={[
-            {
-              matchId: "1",
-              player1Id: player1Id(),
-              player2Id: player2Id(),
-              player1Score: 3000000,
-              player2Score: 2000000,
-              player1Style: "DAS",
-              player2Style: "TAP",
-              winnerId: player1Id(),
-              games: [
-                {
-                  gameId: "1",
-                  date: "2024-01-15",
-                  eventName: "CTWC 2024",
-                  winnerId: player1Id(),
-                },
-              ],
-            },
-            {
-              matchId: "2",
-              player1Id: player1Id(),
-              player2Id: player2Id(),
-              player1Score: 1000000,
-              player2Score: 3000000,
-              player1Style: "DAS",
-              player2Style: "TAP",
-              winnerId: player2Id(),
-              games: [
-                {
-                  gameId: "2",
-                  date: "2023-12-01",
-                  eventName: "CTM",
-                  winnerId: player2Id(),
-                },
-              ],
-            },
-          ]}
+          player1Id={String(player1Id() ?? "")}
+          player2Id={String(player2Id() ?? "")}
+          matches={h2hMatches()}
         />
       </section>
     </main>

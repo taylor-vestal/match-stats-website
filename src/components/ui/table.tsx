@@ -17,7 +17,15 @@ const Table: Component<ComponentProps<"table">> = (props) => {
 
 const TableHeader: Component<ComponentProps<"thead">> = (props) => {
   const [local, others] = splitProps(props, ["class"]);
-  return <thead class={cn("[&_tr]:border-b", local.class)} {...others} />;
+  return (
+    <thead
+      class={cn(
+        "[&_tr]:border-b-[3px] [&_tr]:border-b-foreground/40",
+        local.class
+      )}
+      {...others}
+    />
+  );
 };
 
 const TableBody: Component<ComponentProps<"tbody">> = (props) => {
