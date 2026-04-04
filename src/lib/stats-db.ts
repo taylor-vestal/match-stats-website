@@ -4,7 +4,9 @@ import type { StatsDB, Database } from "./stats-db-impl";
 const [statsDbSignal, setStatsDb] = createSignal<StatsDB>();
 
 if (typeof window !== "undefined") {
+  const slowDb = localStorage.getItem("dev-slow-db") === "true";
   import("./stats-db-impl").then(async ({ StatsDB }) => {
+    if (slowDb) await new Promise((r) => setTimeout(r, 5000));
     setStatsDb(await StatsDB.create());
   });
 }

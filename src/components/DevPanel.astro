@@ -17,6 +17,12 @@
     />
     Debug
   </label>
+  <label
+    class:list={["flex gap-2 bg-card", "px-3 py-2 text-sm", "cursor-pointer"]}
+  >
+    <input type="checkbox" id="dev-slow-db-toggle" class="cursor-pointer" />
+    Slow DB (5s)
+  </label>
 </div>
 
 <style is:global>
@@ -39,6 +45,16 @@
         "debug-ui-borders",
         toggle.checked
       );
+    });
+  }
+
+  const slowDbToggle = document.getElementById(
+    "dev-slow-db-toggle"
+  ) as HTMLInputElement;
+  if (slowDbToggle) {
+    slowDbToggle.checked = localStorage.getItem("dev-slow-db") === "true";
+    slowDbToggle.addEventListener("change", () => {
+      localStorage.setItem("dev-slow-db", String(slowDbToggle.checked));
     });
   }
 </script>
