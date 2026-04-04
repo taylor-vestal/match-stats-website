@@ -16,7 +16,8 @@ import {
   PlayerIcons,
 } from "@/components/PlayerComponents";
 import MatchHistory, { type MatchResult } from "@/components/MatchHistory";
-import type { H2HMatchRow } from "@/lib/stats-db-impl";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { h2hMatchHistory, type H2HMatchRow } from "@/lib/stats/h2h";
 
 interface RecordDisplayProps {
   label: string;
@@ -176,23 +177,11 @@ const HeadToHeadInner: Component = () => {
     id ? new Player(id).getAvatarUrl() : null
   );
 
-  const defaultRecord = { p1Wins: 0, p2Wins: 0 };
-
-  const matchRecord = createMemo(() => {
-    const db = statsDb();
-    const p1 = player1Id();
-    const p2 = player2Id();
-    if (!db || !p1 || !p2) return defaultRecord;
-    return db.h2hMatchRecord(p1, p2);
-  });
-
-  const gameRecord = createMemo(() => {
-    const db = statsDb();
-    const p1 = player1Id();
-    const p2 = player2Id();
-    if (!db || !p1 || !p2) return defaultRecord;
-    return db.h2hGameRecord(p1, p2);
-  });
+  type PlaystyleFilter = "All" | "Open" | "DAS";
+  type DisplayMode = "Game" | "Match";
+  const [playstyleFilter, setPlaystyleFilter] =
+    createSignal<PlaystyleFilter>("All");
+  const [displayMode, setDisplayMode] = createSignal<DisplayMode>("Game");
 
   const h2hMatches = createMemo((): MatchResult[] => {
     const db = statsDb();
@@ -200,7 +189,7 @@ const HeadToHeadInner: Component = () => {
     const p2 = player2Id();
     if (!db || !p1 || !p2) return [];
 
-    const rows = db.h2hMatchHistory(p1, p2);
+    const rows = h2hMatchHistory(db, p1, p2);
     const grouped = new Map<number, H2HMatchRow[]>();
     for (const row of rows) {
       let group = grouped.get(row.matchId);
@@ -226,6 +215,7 @@ const HeadToHeadInner: Component = () => {
         winnerId: String(first.matchWinnerId),
         roundName: first.eventRoundName,
         eventName: first.eventShortName,
+        eventPlaystyle: first.eventPlaystyle,
         date: first.matchTimestamp?.slice(0, 10) ?? undefined,
         games: games
           .filter((g) => g.gameId != null)
@@ -237,10 +227,50 @@ const HeadToHeadInner: Component = () => {
             eventName: first.eventShortName,
             player1Score: g.p1Score ?? undefined,
             player2Score: g.p2Score ?? undefined,
+            player1Style: g.p1Playstyle ?? undefined,
+            player2Style: g.p2Playstyle ?? undefined,
+            player1Topout: (g.p1Topout as "I" | "N" | undefined) ?? undefined,
+            player2Topout: (g.p2Topout as "I" | "N" | undefined) ?? undefined,
             winnerId: String(g.gameWinnerId),
           })),
       };
     });
+  });
+
+  const filteredMatches = createMemo(() => {
+    const filter = playstyleFilter();
+    const matches = h2hMatches();
+    if (filter === "All") return matches;
+    return matches.filter((m) => m.eventPlaystyle === filter);
+  });
+
+  const defaultRecord = { p1Wins: 0, p2Wins: 0 };
+
+  const matchRecord = createMemo(() => {
+    const matches = filteredMatches();
+    const p1 = player1Id();
+    if (!p1) return defaultRecord;
+    const p1Str = String(p1);
+    return {
+      p1Wins: matches.filter((m) => m.winnerId === p1Str).length,
+      p2Wins: matches.filter(
+        (m) => m.winnerId !== p1Str && m.winnerId !== "null"
+      ).length,
+    };
+  });
+
+  const gameRecord = createMemo(() => {
+    const matches = filteredMatches();
+    const p1 = String(player1Id());
+    let p1Wins = 0;
+    let p2Wins = 0;
+    for (const m of matches) {
+      for (const g of m.games) {
+        if (g.winnerId === p1) p1Wins++;
+        else if (g.winnerId !== "null") p2Wins++;
+      }
+    }
+    return { p1Wins, p2Wins };
   });
 
   const player1Socials = createMemo(() => {
@@ -285,10 +315,32 @@ const HeadToHeadInner: Component = () => {
         </article>
       </section>
       <section id="match-history" class="mt-4">
+        <div class="flex justify-between items-center mb-2">
+          <Tabs
+            defaultValue="Open"
+            onChange={(v) => setPlaystyleFilter(v as PlaystyleFilter)}
+          >
+            <TabsList class="w-fit">
+              <TabsTrigger value="Open">Open</TabsTrigger>
+              <TabsTrigger value="DAS">DAS</TabsTrigger>
+              <TabsTrigger value="All">All</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Tabs
+            defaultValue="Game"
+            onChange={(v) => setDisplayMode(v as DisplayMode)}
+          >
+            <TabsList class="w-fit">
+              <TabsTrigger value="Game">Games</TabsTrigger>
+              <TabsTrigger value="Match">Matches</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         <MatchHistory
           player1Id={String(player1Id() ?? "")}
           player2Id={String(player2Id() ?? "")}
-          matches={h2hMatches()}
+          matches={filteredMatches()}
+          displayMode={displayMode()}
         />
       </section>
     </main>
