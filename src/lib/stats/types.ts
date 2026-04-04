@@ -5,12 +5,13 @@ export interface StatisticalFilters {
   startDate?: string; // ISO date
   endDate?: string;
   playstyle?: string;
+  eventPlaystyle?: string; // "Open", "DAS", etc. — filters on event_playstyles table
   matchType?: string;
 }
 
 export interface StatisticalContext {
   filters?: StatisticalFilters;
-  playerId?: number;
+  playerId?: number | number[];
 }
 
 export interface NumericStatisticResult {

@@ -18,6 +18,9 @@ import {
 import MatchHistory, { type MatchResult } from "@/components/MatchHistory";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { h2hMatchHistory, type H2HMatchRow } from "@/lib/stats/h2h";
+import { FairMedianScore, HighRange, LowRange } from "@/lib/stats/player";
+
+const CURRENT_YEAR = 2025;
 
 interface RecordDisplayProps {
   label: string;
@@ -103,18 +106,71 @@ const StatRow: Component<StatRowProps> = (props) => {
 
 const pctFormat = (n: number) => `${n}%`;
 
-const CompareStats: Component = () => {
+interface CompareStatsProps {
+  player1Id: number | null;
+  player2Id: number | null;
+  playstyle: string;
+}
+
+const CompareStats: Component<CompareStatsProps> = (props) => {
+  const stats = createMemo(() => {
+    const db = statsDb();
+    const p1 = props.player1Id;
+    const p2 = props.player2Id;
+    if (!p1 || !p2) return null;
+    const ep = props.playstyle === "All" ? undefined : props.playstyle;
+    const filters = {
+      eventPlaystyle: ep,
+      startDate: `${CURRENT_YEAR}-01-01`,
+      endDate: `${CURRENT_YEAR}-12-31`,
+    };
+    const ctx = { playerId: [p1, p2], filters };
+    const p1s = String(p1);
+    const p2s = String(p2);
+    const val = (
+      results: ReturnType<typeof FairMedianScore.evaluate>,
+      id: string
+    ) => results.find((r) => r.playerId === id)?.value ?? 0;
+    const hr = HighRange.evaluate(db, ctx);
+    const fms = FairMedianScore.evaluate(db, ctx);
+    const lr = LowRange.evaluate(db, ctx);
+    return {
+      p1HR: val(hr, p1s),
+      p2HR: val(hr, p2s),
+      p1FMS: val(fms, p1s),
+      p2FMS: val(fms, p2s),
+      p1LR: val(lr, p1s),
+      p2LR: val(lr, p2s),
+    };
+  });
+
   return (
-    <section
-      class={cn(
-        "h2h-compare-stats items-center grid gap-x-2 gap-y-1",
-        "grid-cols-[auto_1fr_1.5rem_1fr_1.5rem_1fr_auto]"
+    <Show when={stats()}>
+      {(s) => (
+        <section
+          class={cn(
+            "h2h-compare-stats items-center grid gap-x-2 gap-y-1",
+            "grid-cols-[auto_1fr_1.5rem_1fr_1.5rem_1fr_auto]"
+          )}
+        >
+          <StatRow
+            name={`${CURRENT_YEAR} HR`}
+            left={s().p1HR}
+            right={s().p2HR}
+          />
+          <StatRow
+            name={`${CURRENT_YEAR} FMS`}
+            left={s().p1FMS}
+            right={s().p2FMS}
+          />
+          <StatRow
+            name={`${CURRENT_YEAR} LR`}
+            left={s().p1LR}
+            right={s().p2LR}
+          />
+        </section>
       )}
-    >
-      <StatRow name="Stat" left={1000000} right={800000} />
-      <StatRow name="Stat" left={100} right={100} format={pctFormat} />
-      <StatRow name="Stat" left={100} right={100} format={pctFormat} />
-    </section>
+    </Show>
   );
 };
 
@@ -179,8 +235,9 @@ const HeadToHeadInner: Component = () => {
 
   type PlaystyleFilter = "All" | "Open" | "DAS";
   type DisplayMode = "Game" | "Match";
+  const defaultPlaystyle: PlaystyleFilter = "Open";
   const [playstyleFilter, setPlaystyleFilter] =
-    createSignal<PlaystyleFilter>("All");
+    createSignal<PlaystyleFilter>(defaultPlaystyle);
   const [displayMode, setDisplayMode] = createSignal<DisplayMode>("Game");
 
   const h2hMatches = createMemo((): MatchResult[] => {
@@ -299,7 +356,11 @@ const HeadToHeadInner: Component = () => {
           socials={player1Socials()}
         />
         <OverallStats matchRecord={matchRecord()} gameRecord={gameRecord()} />
-        <CompareStats />
+        <CompareStats
+          player1Id={player1Id()}
+          player2Id={player2Id()}
+          playstyle={playstyleFilter()}
+        />
         <PlayerIcons
           class="h2h-icons r"
           playerId={player2Id()}
@@ -317,7 +378,7 @@ const HeadToHeadInner: Component = () => {
       <section id="match-history" class="mt-4">
         <div class="flex justify-between items-center mb-2">
           <Tabs
-            defaultValue="Open"
+            defaultValue={defaultPlaystyle}
             onChange={(v) => setPlaystyleFilter(v as PlaystyleFilter)}
           >
             <TabsList class="w-fit">
