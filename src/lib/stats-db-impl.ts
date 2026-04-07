@@ -1,5 +1,13 @@
-import sqlite3InitModule, { type Sqlite3Static } from "@sqlite.org/sqlite-wasm";
-import type { NumericStatisticResult } from "@/lib/stats/types";
+import sqlite3InitModule, {
+  type Sqlite3Static,
+  type BindableValue,
+} from "@sqlite.org/sqlite-wasm";
+import type {
+  NumericStatisticResult,
+  EventRow,
+  EventRoundRow,
+  MatchRow,
+} from "@/lib/stats/types";
 
 type Database = InstanceType<Sqlite3Static["oo1"]["DB"]>;
 
@@ -8,6 +16,9 @@ export class StatsDB {
 
   // Lazy-loaded caches
   private _playerNames: Map<number, string> | null = null;
+  private _events: Map<number, EventRow> | null = null;
+  private _event_rounds: Map<number, EventRoundRow> | null = null;
+  private _matches: Map<number, MatchRow> | null = null;
 
   private constructor(db: Database) {
     this.db = db;
@@ -40,7 +51,7 @@ export class StatsDB {
     if (db.pointer === undefined) throw new Error("DB pointer is undefined");
 
     const rc = sqlite3.capi.sqlite3_deserialize(
-      db.pointer,
+      db.pointer as number,
       "main",
       p,
       arrayBuffer.byteLength,
@@ -53,12 +64,13 @@ export class StatsDB {
     return new StatsDB(db);
   }
 
-  query<T>(sql: string): T[] {
+  query<T>(sql: string, params: BindableValue[] = []): T[] {
     return this.db.exec({
       sql,
+      bind: params,
       returnValue: "resultRows",
       rowMode: "object",
-    }) as T[];
+    }) as unknown as T[];
   }
 
   evaluateQuery(sql: string): NumericStatisticResult[] {
@@ -74,7 +86,10 @@ export class StatsDB {
   playerNames(): Map<number, string> {
     if (!this._playerNames) {
       const rows = this.query<{ player_id: number; username: string }>(
-        "SELECT player_id, username FROM players"
+        `SELECT 
+          player_id, 
+          username 
+        FROM players`
       );
       this._playerNames = new Map(rows.map((r) => [r.player_id, r.username]));
     }
@@ -83,6 +98,70 @@ export class StatsDB {
 
   playerName(id: number): string | undefined {
     return this.playerNames().get(id);
+  }
+
+  events(): Map<number, EventRow> {
+    if (!this._events) {
+      const rows = this.query<EventRow>(
+        ` SELECT 
+            event_id, 
+            event_short_name, 
+            event_playstyle_id 
+          FROM events`
+      );
+      this._events = new Map(rows.map((r) => [r.event_id, r]));
+    }
+    return this._events;
+  }
+
+  event(id: number): EventRow | undefined {
+    return this.events().get(id);
+  }
+
+  eventPlaystyle(id: number): string | undefined {
+    const rows = this.query<{ playstyle: string }>(
+      ` SELECT playstyle 
+        FROM playstyles 
+        WHERE playstyle_id = ?`,
+      [id]
+    );
+    return rows[0].playstyle;
+  }
+
+  eventRounds(): Map<number, EventRoundRow> {
+    if (!this._event_rounds) {
+      const rows = this.query<EventRoundRow>(
+        ` SELECT 
+            event_round_id, 
+            event_id,
+            event_round_name
+          FROM event_rounds`
+      );
+      this._event_rounds = new Map(rows.map((r) => [r.event_round_id, r]));
+    }
+    return this._event_rounds;
+  }
+
+  eventRound(id: number): EventRoundRow | undefined {
+    return this.eventRounds().get(id);
+  }
+
+  matches(): Map<number, MatchRow> {
+    if (!this._matches) {
+      const rows = this.query<MatchRow>(
+        ` SELECT 
+            match_id, 
+            match_timestamp, 
+            event_round_id 
+          FROM matches `
+      );
+      this._matches = new Map(rows.map((r) => [r.match_id, r]));
+    }
+    return this._matches;
+  }
+
+  match(id: number): MatchRow | undefined {
+    return this.matches().get(id);
   }
 }
 
