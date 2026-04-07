@@ -34,14 +34,14 @@
     --info: 204 94% 94%;
     --info-foreground: 199 89% 48%;
 
-    --success: 149 80% 90%;
-    --success-foreground: 160 84% 39%;
+    --success: 149 40% 70%;
+    --success-foreground: 160 60% 20%;
 
     --warning: 48 96% 89%;
     --warning-foreground: 25 95% 53%;
 
-    --error: 0 93% 94%;
-    --error-foreground: 0 84% 60%;
+    --error: 0 50% 72%;
+    --error-foreground: 0 60% 25%;
 
     --ring: 240 5.9% 10%;
 
@@ -80,14 +80,14 @@
     --info: 204 94% 94%;
     --info-foreground: 199 89% 48%;
 
-    --success: 149 80% 90%;
-    --success-foreground: 160 84% 39%;
+    --success: 149 30% 35%;
+    --success-foreground: 149 40% 75%;
 
     --warning: 48 96% 89%;
     --warning-foreground: 25 95% 53%;
 
-    --error: 0 93% 94%;
-    --error-foreground: 0 84% 60%;
+    --error: 0 40% 38%;
+    --error-foreground: 0 50% 78%;
 
     --ring: 240 4.9% 83.9%;
 

@@ -23,6 +23,11 @@ async function loadAvatarManifest(): Promise<Record<string, string>> {
   return avatarManifest;
 }
 
+/** Ensure avatar manifest is loaded. Call this early in app lifecycle. */
+export async function ensureAvatarManifest(): Promise<void> {
+  await loadAvatarManifest();
+}
+
 export interface PlayerSocials {
   twitch: string | null;
   youtube: string | null;
@@ -48,11 +53,23 @@ export class Player {
     return rows[0];
   }
 
-  async getAvatarUrl(): Promise<string | null> {
-    if (typeof window === "undefined") return null;
+  /** Get avatar URL asynchronously. Loads manifest if needed. */
+  async getAvatarUrl(): Promise<string | undefined> {
+    if (typeof window === "undefined") return undefined;
     const manifest = await loadAvatarManifest();
     const ext = manifest[this.id];
-    if (!ext) return null;
+    if (!ext) return undefined;
+    return `/img/avatar/${this.id}${ext}`;
+  }
+
+  /**
+   * Get avatar URL synchronously. Returns undefined if manifest not loaded yet.
+   * Call ensureAvatarManifest() first to ensure the manifest is loaded.
+   */
+  getAvatarUrlSync(): string | undefined {
+    if (!avatarManifest) return undefined;
+    const ext = avatarManifest[this.id];
+    if (!ext) return undefined;
     return `/img/avatar/${this.id}${ext}`;
   }
 }

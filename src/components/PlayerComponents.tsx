@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/combobox";
 import type { PlayerSocials as PlayerSocialsData } from "@/lib/player";
 
-export type PlayerOption = { id: number; name: string };
+export type PlayerOption = { id: number; name: string; avatarUrl?: string };
 
 export interface PlayerSelectProps {
   value: number | null;
@@ -53,9 +53,24 @@ export const PlayerSelect: Component<PlayerSelectProps> = (props) => {
       optionTextValue="name"
       optionLabel="name"
       placeholder="Select player"
+      triggerMode="focus"
       itemComponent={(itemProps) => (
-        <ComboboxItem item={itemProps.item}>
-          <ComboboxItemLabel>{itemProps.item.rawValue.name}</ComboboxItemLabel>
+        <ComboboxItem item={itemProps.item} class="flex items-center gap-2">
+          <Show
+            when={itemProps.item.rawValue.avatarUrl}
+            fallback={<div class="size-6 rounded-full bg-muted shrink-0" />}
+          >
+            {(url) => (
+              <img
+                src={url()}
+                alt=""
+                class="size-6 rounded-full object-cover shrink-0"
+              />
+            )}
+          </Show>
+          <ComboboxItemLabel class="flex-1 truncate">
+            {itemProps.item.rawValue.name}
+          </ComboboxItemLabel>
           <ComboboxItemIndicator />
         </ComboboxItem>
       )}
@@ -64,7 +79,7 @@ export const PlayerSelect: Component<PlayerSelectProps> = (props) => {
         <ComboboxInput />
         <ComboboxTrigger />
       </ComboboxControl>
-      <ComboboxContent />
+      <ComboboxContent class="max-h-[200px] overflow-scroll w-[--kb-popper-anchor-width]" />
     </Combobox>
   );
 };

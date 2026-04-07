@@ -8,6 +8,7 @@ import Layout from "@/layouts/Layout.astro";
     You found the test page! Use this to test the results of queries
 
     <div id="buttonContainer"></div>
+    <div id="queryTime" style="margin: 8px 0; font-family: monospace;"></div>
     <div id="results"></div>
   </main>
 </Layout>
@@ -18,6 +19,7 @@ import Layout from "@/layouts/Layout.astro";
   import { createEffect } from "solid-js";
 
   const container = document.querySelector("div#buttonContainer");
+  const queryTime = document.querySelector("div#queryTime");
   const results = document.querySelector("div#results");
 
   // Wait for db to be ready before setting up buttons
@@ -34,7 +36,15 @@ import Layout from "@/layouts/Layout.astro";
         if (results === null) return;
         results.innerHTML = "";
 
-        for (const row of stat.evaluate(db, {})) {
+        const start = performance.now();
+        const rows = stat.evaluate(db, {});
+        const end = performance.now();
+
+        if (queryTime) {
+          queryTime.textContent = `Query time: ${(end - start).toFixed(2)}ms (${rows.length} rows)`;
+        }
+
+        for (const row of rows) {
           const player = new Player(row.playerId);
 
           const div = document.createElement("div");

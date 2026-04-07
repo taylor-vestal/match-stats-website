@@ -24,8 +24,16 @@ export function buildWhere(
   if (ctx.filters?.endDate) {
     conditions.push(`match_timestamp <= '${ctx.filters.endDate}'`);
   }
-  if (ctx.playerId) {
-    conditions.push(`player_id = '${ctx.playerId}'`);
+  if (ctx.filters?.eventPlaystyle) {
+    conditions.push(`ep.event_playstyle = '${ctx.filters.eventPlaystyle}'`);
+  }
+  if (ctx.playerId != null) {
+    if (Array.isArray(ctx.playerId)) {
+      const ids = ctx.playerId.join(",");
+      conditions.push(`player_id IN (${ids})`);
+    } else {
+      conditions.push(`player_id = ${ctx.playerId}`);
+    }
   }
 
   return conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";

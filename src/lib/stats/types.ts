@@ -1,16 +1,18 @@
 import type { StatsDB } from "@/lib/stats-db";
+import type { EventPlaystyle, Playstyle } from "@/lib/enums";
 
 export interface StatisticalFilters {
   eventIds?: string[];
   startDate?: string; // ISO date
   endDate?: string;
-  playstyle?: string;
+  playstyle?: Playstyle;
+  eventPlaystyle?: EventPlaystyle;
   matchType?: string;
 }
 
 export interface StatisticalContext {
   filters?: StatisticalFilters;
-  playerId?: number;
+  playerId?: number | number[];
 }
 
 export interface NumericStatisticResult {
